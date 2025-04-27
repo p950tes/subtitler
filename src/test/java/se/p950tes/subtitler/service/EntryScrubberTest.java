@@ -77,6 +77,10 @@ class EntryScrubberTest {
 		newTest("colon suffix")
 			.expect("No. No.")
 			.forEntry("(chuckles):", "No. No.");
+		
+		newTest("Only dash remaining")
+			.expectEmpty()
+			.forEntry("- (chuckles)");
 	}
 	
 	@Test

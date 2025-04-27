@@ -1,6 +1,7 @@
 package se.p950tes.subtitler.service;
 
 import java.util.Arrays;
+import java.util.Objects;
 import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.StringUtils;
@@ -28,6 +29,9 @@ class EntryScrubber {
 	
 	// Names followed by colon: (Guard 1: Hello there)
 	private static final Pattern VOICE_INDICATORS_PATTERN = Pattern.compile("^[\\- ]*[A-Za-z]{2}[A-Za-z0-9 \'&]*\\s?: *");
+	
+	// All caps, at least 3 characters
+	private static final Pattern ONLY_JUNK_CHARACTERS = Pattern.compile("^[^A-Za-z0-9]*$");
 
 	
 	public SubtitleEntry scrub(SubtitleEntry entry) {
@@ -46,15 +50,22 @@ class EntryScrubber {
 		return newEntry;
 	}
 	
-	private String scrubEntry(String entry) {
-		entry = removeAll(HTML_PATTERN, entry);
-		entry = removeAll(BRACKET_PATTERN, entry);
-		entry = removeAll(JUNK_PATTERN, entry);
-
-		entry = removeAll(VOICE_INDICATORS_PATTERN, entry);
-		entry = removeAll(ALL_CAPS_PATTERN, entry);
-		entry = removeAll(JUNK_PATTERN, entry);
-		return entry;
+	private String scrubEntry(final String original) {
+		String modified = original;
+		String lastIteration = null;
+		do {
+			lastIteration = modified;
+			modified = removeAll(HTML_PATTERN, modified);
+			modified = removeAll(BRACKET_PATTERN, modified);
+			modified = removeAll(JUNK_PATTERN, modified);
+	
+			modified = removeAll(VOICE_INDICATORS_PATTERN, modified);
+			modified = removeAll(ALL_CAPS_PATTERN, modified);
+			modified = removeAll(JUNK_PATTERN, modified);
+			modified = removeAll(ONLY_JUNK_CHARACTERS, modified);
+			modified = modified.trim();
+		} while (! Objects.equals(lastIteration, modified));
+		return modified;
 	}
 
 	private static String removeAll(Pattern patternToRemove, String value) {

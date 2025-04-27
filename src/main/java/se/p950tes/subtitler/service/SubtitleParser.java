@@ -59,10 +59,9 @@ class SubtitleParser {
 				lastParsed = Type.CONTENT;
 				continue;
 			}
-		
 			reset();
 		}
-		
+		reset();
 		return new SubtitleFile(file, entries);
 	}
 
