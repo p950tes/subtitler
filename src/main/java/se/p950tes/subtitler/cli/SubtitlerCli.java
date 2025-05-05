@@ -30,10 +30,28 @@ public class SubtitlerCli implements Callable<Integer> {
 			defaultValue = "false")
 	private boolean verbose;
 
-	@Parameters(paramLabel = "files", 
-			description = "File(s)", 
+	@Option(names = { "--scrub" }, 
+			description = "Scrub mode. Scrub all intput files from junk", 
+			defaultValue = "false")
+	private boolean scrubMode;
+	
+	@Option(names = { "--merge" }, 
+			description = "Merge mode. Merge all intput files into one output file", 
+			defaultValue = "false")
+	private boolean mergeMode;
+	
+	@Option(names = {"-o", "--output-file"},
+			paramLabel = "outputFile", 
+			description = "Output file. Only relevant in merge mode", 
+			required = false, 
+			arity = "0..1")
+	private Path outputFile;
+
+	@Parameters(paramLabel = "inputFiles", 
+			description = "Input file(s)", 
 			arity = "1..*")
-	private List<Path> files;
+	private List<Path> inputFiles;
+	
 
 	public SubtitlerCli(SubtitlerCliExecutor executor) {
 		this.executor = executor;
@@ -41,11 +59,21 @@ public class SubtitlerCli implements Callable<Integer> {
 
 	@Override
 	public Integer call() {
-		executor.setFiles(files);
+		executor.setOperation(resolveOperation());
+		executor.setInputFiles(inputFiles);
+		executor.setOutputFile(outputFile);
 		executor.setInPlaceEditEnabled(inPlaceEdit.isPresent());
 		executor.setBackupSuffix(resolveBackupFileSuffix(inPlaceEdit));
 		executor.setVerbose(verbose);
 		return executor.execute();
+	}
+
+	private Operation resolveOperation() {
+		if (mergeMode) {
+			return Operation.MERGE;
+		}
+		// Default operation is scrub
+		return Operation.SCRUB;
 	}
 
 	private static Optional<String> resolveBackupFileSuffix(Optional<String> inPlaceEdit) {

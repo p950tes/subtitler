@@ -39,6 +39,7 @@ class SubtitlerCliTest {
 		verify(executor).setVerbose(true);
 		verify(executor).setInPlaceEditEnabled(false);
 		verify(executor).setBackupSuffix(Optional.empty());
+		verify(executor).setOperation(Operation.SCRUB);
 		verify(executor).execute();
 	}
 	
@@ -48,6 +49,7 @@ class SubtitlerCliTest {
 		verify(executor).setVerbose(false);
 		verify(executor).setInPlaceEditEnabled(true);
 		verify(executor).setBackupSuffix(Optional.empty());
+		verify(executor).setOperation(Operation.SCRUB);
 		verify(executor).execute();
 	}
 	@Test
@@ -56,6 +58,7 @@ class SubtitlerCliTest {
 		verify(executor).setVerbose(false);
 		verify(executor).setInPlaceEditEnabled(true);
 		verify(executor).setBackupSuffix(Optional.of(".bak"));
+		verify(executor).setOperation(Operation.SCRUB);
 		verify(executor).execute();
 	}
 	
@@ -65,13 +68,24 @@ class SubtitlerCliTest {
 		verify(executor).setVerbose(false);
 		verify(executor).setInPlaceEditEnabled(true);
 		verify(executor).setBackupSuffix(Optional.of(".bak"));
-		verify(executor).setFiles(pathOf("file1.srt", "file2.srt"));
+		verify(executor).setInputFiles(pathOf("file1.srt", "file2.srt"));
+		verify(executor).setOperation(Operation.SCRUB);
+		verify(executor).execute();
+	}
+	
+	@Test
+	void merge_mode() {
+		execute("--merge", "-o", "output.srt", "file1.srt", "file2.srt");
+		verify(executor).setVerbose(false);
+		verify(executor).setInputFiles(pathOf("file1.srt", "file2.srt"));
+		verify(executor).setOutputFile(Path.of("output.srt"));
+		verify(executor).setOperation(Operation.MERGE);
 		verify(executor).execute();
 	}
 
 	private static List<Path> pathOf(String... paths) {
 		return Arrays.stream(paths)
-				.map(path -> Path.of(path))
+				.map(Path::of)
 				.toList();
 	}
 	private int execute(String... args) {

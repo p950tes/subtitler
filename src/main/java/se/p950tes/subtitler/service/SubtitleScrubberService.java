@@ -8,14 +8,14 @@ import se.p950tes.subtitler.service.model.SubtitleEntry;
 import se.p950tes.subtitler.service.model.SubtitleFile;
 import se.p950tes.subtitler.util.FileManager;
 
-public class SubtitleScrubber {
+public class SubtitleScrubberService {
 
 	private final FileManager fileManager;
 	private final boolean inPlaceEdit;
 	private final boolean backupOriginalFile;
 	private final boolean verbose;
 	
-	public SubtitleScrubber(FileManager fileManager, boolean inPlaceEdit, boolean backupOriginalFile, boolean verbose) {
+	public SubtitleScrubberService(FileManager fileManager, boolean inPlaceEdit, boolean backupOriginalFile, boolean verbose) {
 		this.fileManager = fileManager;
 		this.inPlaceEdit = inPlaceEdit;
 		this.backupOriginalFile = backupOriginalFile;
