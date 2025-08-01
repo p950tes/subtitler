@@ -138,6 +138,14 @@ class EntryScrubberTest {
 	}
 	
 	@Test
+	void lines_with_broken_japanese_artefacts() {
+		
+		newTest("japanese artefacts").expectEmpty().forEntry("m 1737 191 l 1737 b -191 m 4521");
+		newTest("japanese artefacts2").expectEmpty().forEntry("m 2762.39 566.43 l 2464.00 566.43 2464.00 -40.23 2762.39 -40.23");
+		newTest("Contains real words").expect("m 1737 hello 191").forEntry("m 1737 hello 191");
+	}
+	
+	@Test
 	void manualTest() {
 		SubtitleEntry entry = new SubtitleEntry(9, "00:00:38,038 --> 00:00:40,249", List.of("-FRENCHIE: Who is he?", "-Oh, this here", "is Hughie Campbell."));
 		SubtitleEntry newEntry = scrubber.scrub(entry);

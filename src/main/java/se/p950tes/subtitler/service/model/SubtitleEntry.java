@@ -68,7 +68,7 @@ public class SubtitleEntry {
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(index, lines, timestamp);
+		return Objects.hash(lines, timestamp);
 	}
 
 	@Override
@@ -83,7 +83,6 @@ public class SubtitleEntry {
 			return false;
 		}
 		SubtitleEntry other = (SubtitleEntry) obj;
-		return Objects.equals(index, other.index) && Objects.equals(lines, other.lines)
-				&& Objects.equals(timestamp, other.timestamp);
+		return Objects.equals(lines, other.lines) && Objects.equals(timestamp, other.timestamp);
 	}
 }

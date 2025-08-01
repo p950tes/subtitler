@@ -2,12 +2,8 @@ package se.p950tes.subtitler.service;
 
 import java.io.PrintStream;
 import java.nio.file.Path;
-import java.util.Comparator;
 import java.util.List;
-import java.util.Objects;
-import java.util.function.Predicate;
-
-import org.apache.commons.lang3.ObjectUtils;
+import java.util.stream.Stream;
 
 import se.p950tes.subtitler.service.model.SubtitleEntry;
 import se.p950tes.subtitler.service.model.SubtitleFile;
@@ -30,13 +26,10 @@ public class SubtitleMergerService {
 				.map(this::parse)
 				.toList();
 		
-		List<SubtitleEntry> combinedEntries = parsedFiles.stream()
-				.flatMap(file -> file.getEntries().stream())
-				.sorted(Comparator.comparing(SubtitleEntry::getTimestamp))
-				.filter(new NoDuplicatePredicate())
-				.toList();
+		Stream<SubtitleEntry> combinedEntryStream = parsedFiles.stream()
+				.flatMap(file -> file.getEntries().stream());
 		
-		correctIndexes(combinedEntries);
+		List<SubtitleEntry> combinedEntries = EntryCollectionFinaliser.finalise(combinedEntryStream);
 		
 		printVerbose("Writing output file: " + outputFile);
 		
@@ -66,41 +59,12 @@ public class SubtitleMergerService {
 		}
 	}
 
-	private void correctIndexes(List<SubtitleEntry> entries) {
-		for (int i = 0; i < entries.size(); i++) {
-			entries.get(i).setIndex(i + 1);
-		}
-	}
-	
 	private void print(String line) {
 		System.out.println(line);
 	}
 	private void printVerbose(String line) {
 		if (verbose) {
 			print(line);
-		}
-	}
-	
-	private static class NoDuplicatePredicate implements Predicate<SubtitleEntry> {
-
-		private SubtitleEntry previousEntry;
-		
-		@Override
-		public boolean test(SubtitleEntry currentEntry) {
-			if (ObjectUtils.anyNull(previousEntry, currentEntry)) {
-				previousEntry = currentEntry;
-				return true;
-			}
-			if (Objects.equals(previousEntry.getTimestamp(), currentEntry.getTimestamp())) {
-				previousEntry = currentEntry;
-				return false;
-			}
-			if (Objects.equals(previousEntry.getLines(), currentEntry.getLines())) {
-				previousEntry = currentEntry;
-				return false;
-			}
-			previousEntry = currentEntry;
-			return true;
 		}
 	}
 }

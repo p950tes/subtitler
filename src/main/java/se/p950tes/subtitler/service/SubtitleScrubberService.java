@@ -30,12 +30,10 @@ public class SubtitleScrubberService {
 
 		EntryScrubber scrubber = new EntryScrubber();
 		
-		var newEntries = subtitle.getEntries().stream()
-				.map(scrubber::scrub)
-				.filter(SubtitleEntry::isNotEmpty)
-				.toList();
+		var newEntryStream = subtitle.getEntries().stream()
+				.map(scrubber::scrub);
 
-		correctIndexes(newEntries);
+		List<SubtitleEntry> newEntries = EntryCollectionFinaliser.finalise(newEntryStream);
 		
 		if (inPlaceEdit) {
 			if (backupOriginalFile) {
@@ -73,12 +71,6 @@ public class SubtitleScrubberService {
 		}
 	}
 
-	private void correctIndexes(List<SubtitleEntry> entries) {
-		for (int i = 0; i < entries.size(); i++) {
-			entries.get(i).setIndex(i + 1);
-		}
-	}
-	
 	private void print(String line) {
 		System.out.println(line);
 	}

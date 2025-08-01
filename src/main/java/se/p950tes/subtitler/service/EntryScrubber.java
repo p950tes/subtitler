@@ -32,6 +32,8 @@ class EntryScrubber {
 	
 	// All caps, at least 3 characters
 	private static final Pattern ONLY_JUNK_CHARACTERS = Pattern.compile("^[^A-Za-z0-9]*$");
+	
+	private static final Pattern JAPANESE_JUNK_CHARACTERS = Pattern.compile("^m [0-9mbl \\.\\-]+$");
 
 	
 	public SubtitleEntry scrub(SubtitleEntry entry) {
@@ -63,6 +65,7 @@ class EntryScrubber {
 			modified = removeAll(ALL_CAPS_PATTERN, modified);
 			modified = removeAll(JUNK_PATTERN, modified);
 			modified = removeAll(ONLY_JUNK_CHARACTERS, modified);
+			modified = removeAll(JAPANESE_JUNK_CHARACTERS, modified);
 			modified = modified.trim();
 		} while (! Objects.equals(lastIteration, modified));
 		return modified;
