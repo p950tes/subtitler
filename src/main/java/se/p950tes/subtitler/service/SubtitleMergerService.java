@@ -33,7 +33,7 @@ public class SubtitleMergerService {
 		
 		printVerbose("Writing output file: " + outputFile);
 		
-		try (PrintStream fileOutputStream = fileManager.openPrintOutputStream(outputFile)) {
+		try (PrintStream fileOutputStream = fileManager.openOutputStream(outputFile)) {
 			writeSubtitleContents(combinedEntries, fileOutputStream);
 		} catch (Exception e) {
 			throw new IllegalStateException("Failed to write output file", e);

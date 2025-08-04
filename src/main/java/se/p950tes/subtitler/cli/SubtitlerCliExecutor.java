@@ -10,6 +10,8 @@ import se.p950tes.subtitler.util.FileManager;
 
 public class SubtitlerCliExecutor {
 
+	private final FileManager fileManager;
+
 	private boolean verbose;
 	private List<Path> inputFiles;
 	private Operation operation;
@@ -19,23 +21,25 @@ public class SubtitlerCliExecutor {
 	private boolean inPlaceEditEnabled;
 	private Optional<String> backupSuffix;
 	
+	public SubtitlerCliExecutor(FileManager fileManager) {
+		this.fileManager = fileManager;
+	}
 
 	int execute() {
-		FileManager fileManager = new FileManager(backupSuffix, verbose);
 
-		if (!validateInputFiles(fileManager)) {
+		if (! validateInputFiles(fileManager)) {
 			return -1;
 		}
 
 		switch (operation) {
-		case SCRUB:
-			executeScrubOperation(fileManager);
-			break;
-		case MERGE:
-			executeMergeOperation(fileManager);
-			break;
-		default:
-			throw new IllegalStateException("Unsupported operation: " + operation);
+			case SCRUB:
+				executeScrubOperation(fileManager);
+				break;
+			case MERGE:
+				executeMergeOperation(fileManager);
+				break;
+			default:
+				throw new IllegalStateException("Unsupported operation: " + operation);
 		}
 		return 0;
 	}
@@ -44,16 +48,38 @@ public class SubtitlerCliExecutor {
 		boolean success = true;
 		
 		for (Path file : inputFiles) {
-			if (!fileManager.validateInputFile(file, inPlaceEditEnabled)) {
+			if (! validateInputFile(file, fileManager)) {
 				success = false;
 			}
 		}
 		return success;
 	}
+	
+	private boolean validateInputFile(Path file, FileManager fileManager) {
+		
+		if (! fileManager.isReadableFile(file)) {
+			System.err.println("File is not readable: " + file.toAbsolutePath());
+			return false;
+		}
+		if (inPlaceEditEnabled && fileManager.isWritableFile(file)) {
+			System.err.println("In-place edit is enabled but file is not writeable: " + file.toAbsolutePath());
+			return false;
+		}
+		if (backupSuffix.isPresent()) {
+			Path backupFile = fileManager.resolveBackupFile(file, backupSuffix.get());
+			if (fileManager.fileExists(backupFile)) {
+				System.err.println("Backup file already exists: " + backupFile.toAbsolutePath());
+				return false;
+			} else if (! fileManager.isWritableFile(file)) {
+				System.err.println("Backup file is not writable: " + backupFile.toAbsolutePath());
+				return false;
+			}
+		}
+		return true;
+	}
 
 	private void executeScrubOperation(FileManager fileManager) {
-		boolean backupOriginalFile = backupSuffix.isPresent();
-		SubtitleScrubberService scrubber = new SubtitleScrubberService(fileManager, inPlaceEditEnabled, backupOriginalFile, verbose);
+		SubtitleScrubberService scrubber = new SubtitleScrubberService(fileManager, inPlaceEditEnabled, backupSuffix, verbose);
 		for (Path file : inputFiles) {
 			scrubber.processFile(file);
 		}

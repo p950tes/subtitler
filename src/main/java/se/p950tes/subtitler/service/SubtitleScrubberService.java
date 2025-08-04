@@ -3,6 +3,7 @@ package se.p950tes.subtitler.service;
 import java.io.PrintStream;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.Optional;
 
 import se.p950tes.subtitler.service.model.SubtitleEntry;
 import se.p950tes.subtitler.service.model.SubtitleFile;
@@ -12,13 +13,13 @@ public class SubtitleScrubberService {
 
 	private final FileManager fileManager;
 	private final boolean inPlaceEdit;
-	private final boolean backupOriginalFile;
+	private final Optional<String> backupSuffix;
 	private final boolean verbose;
 	
-	public SubtitleScrubberService(FileManager fileManager, boolean inPlaceEdit, boolean backupOriginalFile, boolean verbose) {
+	public SubtitleScrubberService(FileManager fileManager, boolean inPlaceEdit, Optional<String> backupSuffix, boolean verbose) {
 		this.fileManager = fileManager;
 		this.inPlaceEdit = inPlaceEdit;
-		this.backupOriginalFile = backupOriginalFile;
+		this.backupSuffix = backupSuffix;
 		this.verbose = verbose;
 	}
 
@@ -36,8 +37,10 @@ public class SubtitleScrubberService {
 		List<SubtitleEntry> newEntries = EntryCollectionFinaliser.finalise(newEntryStream);
 		
 		if (inPlaceEdit) {
-			if (backupOriginalFile) {
-				fileManager.backupInputFile(file);
+			if (backupSuffix.isPresent()) {
+				Path backupFile = fileManager.resolveBackupFile(file, backupSuffix.get());
+				printVerbose("Backing up original file to " + backupFile);
+				fileManager.copy(file, backupFile);
 			}
 			replaceInputFile(file, newEntries);
 		} else {
@@ -55,7 +58,7 @@ public class SubtitleScrubberService {
 
 	private void replaceInputFile(Path originalPath, List<SubtitleEntry> entries) {
 		printVerbose("Overwriting original file: " + originalPath);
-		try (PrintStream fileOutputStream = fileManager.openPrintOutputStream(originalPath)) {
+		try (PrintStream fileOutputStream = fileManager.openOutputStream(originalPath)) {
 			
 			writeSubtitleContents(entries, fileOutputStream);
 			

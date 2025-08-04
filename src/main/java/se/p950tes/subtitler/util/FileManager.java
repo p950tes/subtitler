@@ -7,37 +7,19 @@ import java.io.PrintStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
-import java.util.Optional;
 
 public class FileManager {
 
-	private final Optional<String> backupFileSuffix;
-	private final boolean verbose;
-	
-	public FileManager(Optional<String> backupFileSuffix, boolean verbose) {
-		this.backupFileSuffix = backupFileSuffix;
-		this.verbose = verbose;
+	public boolean fileExists(Path file) {
+		return Files.exists(file);
 	}
-
-	public boolean validateInputFile(Path file, boolean shouldBeWriteable) {
-		if ((! Files.exists(file)) || (! Files.isRegularFile(file)) || (! Files.isReadable(file))) {
-			System.err.println("File does not exist: " + file.toAbsolutePath());
-			return false;
-		}
-		if (shouldBeWriteable) {
-			if (! Files.isWritable(file)) {
-				System.err.println("File is not writeable: " + file.toAbsolutePath());
-				return false;
-			}
-		}
-		if (backupFileSuffix.isPresent()) {
-			Path backupFile = resolveBackupFile(file);
-			if (Files.exists(backupFile)) {
-				System.err.println("Backup file already exists: " + backupFile.toAbsolutePath());
-				return false;
-			}
-		}
-		return true;
+	
+	public boolean isReadableFile(Path file) {
+		return Files.exists(file) && Files.isRegularFile(file) && Files.isReadable(file);
+	}
+	
+	public boolean isWritableFile(Path file) {
+		return Files.exists(file) && Files.isRegularFile(file) && Files.isWritable(file);
 	}
 	
 	public List<String> readLinesFromFile(Path file) {
@@ -48,35 +30,25 @@ public class FileManager {
 		}
 	}
 	
-	public PrintStream openPrintOutputStream(Path file) throws IOException {
+	public PrintStream openOutputStream(Path file) throws IOException {
 		OutputStream fileOutputStream = Files.newOutputStream(file);
 		return new PrintStream(fileOutputStream);
 	}
 	
-	public Path backupInputFile(Path file) {
+	public void copy(Path source, Path destination) {
 		try {
-			Path backupFile = resolveBackupFile(file);
-			printVerbose("Backing up original file to " + backupFile);
-			
-			Files.copy(file, backupFile);
-			return backupFile;
+			Files.copy(source, destination);
 		} catch (Exception e) {
 			throw new IllegalStateException("Failed to backup original file", e);
 		}
 	}
 	
-	private Path resolveBackupFile(Path file) {
-		String originalFileName = file.getFileName().toString();
-		String backupFileName = originalFileName + backupFileSuffix.get();
-		Path directory = file.toAbsolutePath().getParent();
+	public Path resolveBackupFile(Path inputFile, String backupFileSuffix) {
+		String originalFileName = inputFile.getFileName().toString();
+		String backupFileName = originalFileName + backupFileSuffix;
+		Path directory = inputFile.toAbsolutePath().getParent();
 		
 		File backupFile = new File(directory.toFile(), backupFileName);
 		return backupFile.toPath();
-	}
-	
-	private void printVerbose(String line) {
-		if (verbose) {
-			System.out.println(line);
-		}
 	}
 }
