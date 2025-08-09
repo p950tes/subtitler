@@ -1,4 +1,4 @@
-package se.p950tes.subtitler.cli;
+package se.p950tes.subtitler.cli.argprocessing;
 
 import java.util.Map;
 import java.util.Stack;
@@ -7,9 +7,9 @@ import picocli.CommandLine.IParameterPreprocessor;
 import picocli.CommandLine.Model.ArgSpec;
 import picocli.CommandLine.Model.CommandSpec;
 
-class DisableSpaceSeparatorPreprocessor implements IParameterPreprocessor {
+public class DisableSpaceSeparatorPreprocessor implements IParameterPreprocessor {
 
-	DisableSpaceSeparatorPreprocessor() {
+	public DisableSpaceSeparatorPreprocessor() {
 		super();
 	}
 
