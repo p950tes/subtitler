@@ -1,9 +1,10 @@
 package se.p950tes.subtitler.cli;
 
+import java.io.IOException;
 import java.nio.file.Path;
-import java.util.List;
-import java.util.Optional;
 
+import picocli.CommandLine;
+import se.p950tes.subtitler.options.SubtitlerArguments;
 import se.p950tes.subtitler.service.SubtitleMergerService;
 import se.p950tes.subtitler.service.SubtitleScrubberService;
 import se.p950tes.subtitler.util.FileManager;
@@ -12,61 +13,74 @@ public class SubtitlerCliExecutor {
 
 	private final FileManager fileManager;
 
-	private boolean verbose;
-	private List<Path> inputFiles;
-	private Operation operation;
-	private Path outputFile;
-	
-	// Scrub options
-	private boolean inPlaceEditEnabled;
-	private Optional<String> backupSuffix;
+	private SubtitlerArguments args;
 	
 	public SubtitlerCliExecutor(FileManager fileManager) {
 		this.fileManager = fileManager;
 	}
 
-	int execute() {
-
-		if (! validateInputFiles(fileManager)) {
-			return -1;
+	public int execute(SubtitlerArguments arguments) {
+		this.args = arguments; 
+		
+		if (! validateArguments()) {
+			return CommandLine.ExitCode.USAGE;
 		}
 
-		switch (operation) {
-			case SCRUB:
-				executeScrubOperation(fileManager);
-				break;
-			case MERGE:
-				executeMergeOperation(fileManager);
-				break;
-			default:
-				throw new IllegalStateException("Unsupported operation: " + operation);
+		if (args.transformationOptions().scrubMode()) {
+			executeScrubOperation();
 		}
-		return 0;
+		if (args.transformationOptions().mergeMode()) {
+			executeMergeOperation();
+		}
+		return CommandLine.ExitCode.OK;
 	}
 
-	private boolean validateInputFiles(FileManager fileManager) {
-		boolean success = true;
+	private boolean validateArguments() {
+		var inputOptions = args.inputOptions();
+		var outputOptions = args.outputOptions();
+		var transformationOptions = args.transformationOptions();
 		
-		for (Path file : inputFiles) {
-			if (! validateInputFile(file, fileManager)) {
-				success = false;
+		if (inputOptions.stdIn() && !isStdinAvailable()) {
+			System.err.println("No input specified and stdin is empty");
+			return false;
+		}
+		if (transformationOptions.mergeMode() && outputOptions.inPlaceEdit()) {
+			System.err.println("Cannot combine merge mode with in-place edit");
+			return false;
+		}
+		
+		for (Path file : inputOptions.inputFiles()) {
+			if (! validateInputFile(file)) {
+				return false;
 			}
 		}
-		return success;
+		return true;
 	}
 	
-	private boolean validateInputFile(Path file, FileManager fileManager) {
-		
+    private boolean isStdinAvailable() {
+        try {
+            if (System.console() != null) {
+                return false; // interactive terminal --> no piped input
+            }
+            // If something is already buffered in stdin
+            return System.in.available() > 0;
+        } catch (IOException e) {
+            return false;
+        }
+    }
+	
+	private boolean validateInputFile(Path file) {
+		var outputOptions = args.outputOptions();
 		if (! fileManager.isReadableFile(file)) {
 			System.err.println("File is not readable: " + file.toAbsolutePath());
 			return false;
 		}
-		if (inPlaceEditEnabled && fileManager.isWritableFile(file)) {
+		if (outputOptions.inPlaceEdit() && fileManager.isWritableFile(file)) {
 			System.err.println("In-place edit is enabled but file is not writeable: " + file.toAbsolutePath());
 			return false;
 		}
-		if (backupSuffix.isPresent()) {
-			Path backupFile = fileManager.resolveBackupFile(file, backupSuffix.get());
+		if (outputOptions.backupFileSuffix().isPresent()) {
+			Path backupFile = fileManager.resolveBackupFile(file, outputOptions.backupFileSuffix().get());
 			if (fileManager.fileExists(backupFile)) {
 				System.err.println("Backup file already exists: " + backupFile.toAbsolutePath());
 				return false;
@@ -78,39 +92,14 @@ public class SubtitlerCliExecutor {
 		return true;
 	}
 
-	private void executeScrubOperation(FileManager fileManager) {
-		SubtitleScrubberService scrubber = new SubtitleScrubberService(fileManager, inPlaceEditEnabled, backupSuffix, verbose);
-		for (Path file : inputFiles) {
+	private void executeScrubOperation() {
+		SubtitleScrubberService scrubber = new SubtitleScrubberService(fileManager, args.outputOptions().inPlaceEdit(), args.outputOptions().backupFileSuffix(), args.verbose());
+		for (Path file : args.inputOptions().inputFiles()) {
 			scrubber.processFile(file);
 		}
 	}
-	private void executeMergeOperation(FileManager fileManager) {
-		SubtitleMergerService service = new SubtitleMergerService(fileManager, verbose);
-		service.merge(inputFiles, outputFile);
-	}
-
-
-	void setInputFiles(List<Path> inputFiles) {
-		this.inputFiles = inputFiles;
-	}
-
-	void setInPlaceEditEnabled(boolean inPlaceEditEnabled) {
-		this.inPlaceEditEnabled = inPlaceEditEnabled;
-	}
-
-	void setBackupSuffix(Optional<String> backupSuffix) {
-		this.backupSuffix = backupSuffix;
-	}
-
-	void setVerbose(boolean verbose) {
-		this.verbose = verbose;
-	}
-
-	void setOperation(Operation operation) {
-		this.operation = operation;
-	}
-
-	void setOutputFile(Path outputFile) {
-		this.outputFile = outputFile;
+	private void executeMergeOperation() {
+		SubtitleMergerService service = new SubtitleMergerService(fileManager, args.verbose());
+		service.merge(args.inputOptions().inputFiles(), args.outputOptions().outputFile());
 	}
 }
