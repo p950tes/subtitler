@@ -1,17 +1,16 @@
-package se.p950tes.subtitler;
+package se.p950tes.subtitler.cli;
 
 import java.nio.file.Path;
 import java.time.Duration;
 import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.Callable;
 
 import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 import picocli.CommandLine.Parameters;
-import se.p950tes.subtitler.cli.argprocessing.DisableSpaceSeparatorPreprocessor;
-import se.p950tes.subtitler.cli.argprocessing.DurationConverter;
+import se.p950tes.subtitler.cli.processing.DisableSpaceSeparatorPreprocessor;
+import se.p950tes.subtitler.cli.processing.DurationTypeConverter;
 
 @Command(
 		name = "subtitler", 
@@ -19,7 +18,7 @@ import se.p950tes.subtitler.cli.argprocessing.DurationConverter;
 		mixinStandardHelpOptions = true,
 		sortOptions = false
 	)
-abstract class SubtitlerCLI implements Callable<Integer> {
+abstract class SubtitlerCLI {
 
     @ArgGroup(exclusive = true, multiplicity = "1", heading = "Operation mode (exactly one required):%n")
     Mode mode;
@@ -39,7 +38,7 @@ abstract class SubtitlerCLI implements Callable<Integer> {
                 description = "Shift subtitle timings by TIME (e.g., +2.5s, -1500ms, 1.2m, 0.5h).%n"
                         + "Supported units: ms (milliseconds), s (seconds), m (minutes), h (hours).",
                 paramLabel = "TIME",
-                converter = DurationConverter.class)
+                converter = DurationTypeConverter.class)
         Duration shift;
     }
 	

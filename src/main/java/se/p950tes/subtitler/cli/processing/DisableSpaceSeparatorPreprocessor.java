@@ -1,4 +1,4 @@
-package se.p950tes.subtitler.cli.argprocessing;
+package se.p950tes.subtitler.cli.processing;
 
 import java.util.Map;
 import java.util.Stack;

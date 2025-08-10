@@ -1,4 +1,4 @@
-package se.p950tes.subtitler.cli.argprocessing;
+package se.p950tes.subtitler.cli.processing;
 
 import java.time.Duration;
 import java.util.regex.Matcher;
@@ -7,7 +7,7 @@ import java.util.regex.Pattern;
 import picocli.CommandLine;
 import picocli.CommandLine.ITypeConverter;
 
-public class DurationConverter implements ITypeConverter<Duration> {
+public class DurationTypeConverter implements ITypeConverter<Duration> {
 
 	private static final int MILLIS_IN_SECOND = 1000;
 	private static final int MILLIS_IN_MINUTE = MILLIS_IN_SECOND * 60;
