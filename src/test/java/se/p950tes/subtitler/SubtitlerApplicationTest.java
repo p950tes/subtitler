@@ -49,7 +49,7 @@ class SubtitlerApplicationTest {
 	}
 	@Test
 	void verbose() {
-		application.execute("-v", "someFile.srt");
+		application.execute("-v", "--scrub", "someFile.srt");
 		verifyArgs(args -> {
 			assertTrue(args.verbose(), "verbose");
 		});

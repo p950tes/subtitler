@@ -1,74 +1,15 @@
 package se.p950tes.subtitler;
 
-import java.nio.file.Path;
-import java.time.Duration;
-import java.util.List;
-import java.util.Optional;
-import java.util.concurrent.Callable;
-
 import picocli.CommandLine;
-import picocli.CommandLine.Command;
-import picocli.CommandLine.Option;
-import picocli.CommandLine.Parameters;
 import se.p950tes.subtitler.cli.SubtitlerCliExecutor;
-import se.p950tes.subtitler.cli.argprocessing.DisableSpaceSeparatorPreprocessor;
-import se.p950tes.subtitler.cli.argprocessing.DurationConverter;
 import se.p950tes.subtitler.options.InputOptions;
 import se.p950tes.subtitler.options.OutputOptions;
 import se.p950tes.subtitler.options.SubtitlerArguments;
 import se.p950tes.subtitler.options.TransformationOptions;
 import se.p950tes.subtitler.util.FileManager;
 
-@Command(
-		name = "subtitler", 
-		description = "Manage and process SRT subtitle files (scrub, merge, shift timings).",
-		mixinStandardHelpOptions = true,
-		sortOptions = false
-	)
-public class SubtitlerApplication implements Callable<Integer> {
+public class SubtitlerApplication extends SubtitlerCLI {
 
-	@Option(names = { "--scrub" }, 
-			description = "Scrub mode. Scrub all intput files from junk", 
-			defaultValue = "false")
-	private boolean scrubMode;
-	
-	@Option(names = { "--merge" }, 
-			description = "Merge mode. Merge all intput files into one output file", 
-			defaultValue = "false")
-	private boolean mergeMode;
-
-    @Option(names = { "--shift" },
-            description = "Shift subtitle timings by TIME (e.g., +2.5s, -1500ms).",
-            paramLabel = "TIME",
-            converter = DurationConverter.class)
-    private Duration shift;
-	
-	@Option(names = { "-i", "--in-place" }, 
-			description = "Edit files in place. If a suffix parameter is specified then the original file will be kept behind with the specified suffix.", 
-			paramLabel = "backupSuffix", 
-			required = false, 
-			arity = "0..1", 
-			fallbackValue = "", 
-			preprocessor = DisableSpaceSeparatorPreprocessor.class)
-	private Optional<String> inPlaceEdit;
-
-	@Option(names = { "-v", "--verbose" }, 
-			description = "Verbose mode", 
-			defaultValue = "false")
-	private boolean verbose;
-	
-	@Option(names = {"-o", "--output-file"},
-			paramLabel = "outputFile", 
-			description = "Write output to FILE. Use '-' for stdout (default).", 
-			required = false, 
-			arity = "0..1")
-	private Path outputFile;
-
-	@Parameters(paramLabel = "inputFiles", 
-			description = "Subtitle file(s) to process. If omitted, reads from stdin.", 
-			arity = "0..*")
-	private List<Path> inputFiles;
-	
 	private final SubtitlerCliExecutor executor;
 	
 	public SubtitlerApplication(SubtitlerCliExecutor executor) {
@@ -96,9 +37,9 @@ public class SubtitlerApplication implements Callable<Integer> {
 
 	private TransformationOptions createTransformationOptions() {
 		return TransformationOptions.create()
-				.withMergeMode(mergeMode)
-				.withScrubMode(scrubMode)
-				.withTimeShiftMode(shift);
+				.withMergeMode(mode.mergeMode)
+				.withScrubMode(mode.scrubMode)
+				.withTimeShiftMode(mode.shift);
 	}
 	private InputOptions createInputOptions() {
 		if (inputFiles == null || inputFiles.isEmpty()) {
