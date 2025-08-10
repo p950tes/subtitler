@@ -12,9 +12,9 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import se.p950tes.subtitler.file.FileManager;
 import se.p950tes.subtitler.service.model.SubtitleEntry;
 import se.p950tes.subtitler.service.model.SubtitleFile;
-import se.p950tes.subtitler.util.FileManager;
 
 @ExtendWith(MockitoExtension.class)
 class SubtitleParserTest {

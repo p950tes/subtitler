@@ -5,9 +5,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
 
+import se.p950tes.subtitler.file.FileManager;
 import se.p950tes.subtitler.service.model.SubtitleEntry;
 import se.p950tes.subtitler.service.model.SubtitleFile;
-import se.p950tes.subtitler.util.FileManager;
 
 class SubtitleParser {
 

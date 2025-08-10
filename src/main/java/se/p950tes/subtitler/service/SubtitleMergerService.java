@@ -5,9 +5,9 @@ import java.nio.file.Path;
 import java.util.List;
 import java.util.stream.Stream;
 
+import se.p950tes.subtitler.file.FileManager;
 import se.p950tes.subtitler.service.model.SubtitleEntry;
 import se.p950tes.subtitler.service.model.SubtitleFile;
-import se.p950tes.subtitler.util.FileManager;
 
 public class SubtitleMergerService {
 

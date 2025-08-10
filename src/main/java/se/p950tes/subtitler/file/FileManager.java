@@ -1,4 +1,4 @@
-package se.p950tes.subtitler.util;
+package se.p950tes.subtitler.file;
 
 import java.io.File;
 import java.io.IOException;
@@ -51,4 +51,17 @@ public class FileManager {
 		File backupFile = new File(directory.toFile(), backupFileName);
 		return backupFile.toPath();
 	}
+	
+    public boolean isStdinAvailable() {
+        try {
+            if (System.console() != null) {
+                return false; // interactive terminal --> no piped input
+            }
+            // If something is already buffered in stdin
+            return System.in.available() > 0;
+            
+        } catch (IOException e) {
+            return false;
+        }
+    }
 }
