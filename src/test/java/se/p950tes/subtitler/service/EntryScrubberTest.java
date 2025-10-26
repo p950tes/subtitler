@@ -14,144 +14,172 @@ class EntryScrubberTest {
 	private final EntryScrubber scrubber = new EntryScrubber();
 
 	@Test
-	void junk_music() {
+	void music_junk() {
 		newTest("music junk")
-			.expect("well, I hear it's fine", "if you got the time")
-			.forEntry("J“ well, I hear it's fine", "if you got the time j“");
+			.forEntry(
+					"J“ well, I hear it's fine", 
+					"if you got the time j“")
+			.expect(
+					"well, I hear it's fine", 
+					"if you got the time");
 		
 		newTest("music junk")
-			.expect("I might be mistaken", "hm, hm, hm")
-			.forEntry("J“ I might be mistaken", "hm, hm, hm j“j“");
+			.forEntry(
+					"J“ I might be mistaken", 
+					"hm, hm, hm j“j“")
+			.expect("I might be mistaken", 
+					"hm, hm, hm");
 		
 		newTest("music junk")
-			.expectEmpty()
-			.forEntry("[J“j“j“]");
+			.forEntry("[J“j“j“]")
+			.expectEmpty();
 		
 		newTest("music junk")
-			.expectEmpty()
-			.forEntry("[Men whooping]", "{\\an2}");
+			.forEntry("[Men whooping]", "{\\an2}")
+			.expectEmpty();
 	}
 	
 	@Test
 	void html() {
 		newTest("html_single_line_removed")
-			.expect("Hello")
-			.forEntry("<p>Hello</p><br/>");
+			.forEntry("<p>Hello</p><br/>")
+			.expect("Hello");
 		
 		newTest("html_single_line_malformed")
-			.expect("<pHello")
-			.forEntry("<pHello</p><br/>");
+			.forEntry("<pHello</p><br/>")
+			.expect("<pHello");
 	}
 	@Test
 	void square_brackets() {
 		newTest("square_bracket_single_line_removed")
-			.expect("Hello")
-			.forEntry("[HELP]Hello[help]");
+			.forEntry("[HELP]Hello[help]")
+			.expect("Hello");
 		
 		newTest("square_bracket_line_malformed")
-			.expect("[HELPHello[HELP")
-			.forEntry("[HELPHello[HELP");
+			.forEntry("[HELPHello[HELP")
+			.expect("[HELPHello[HELP");
 		
 		newTest("multi line square bracket")
-			.expectEmpty()
-			.forEntry("[These are", "two lines]");
+			.forEntry("[These are", "two lines]")
+			.expectEmpty();
 	}
 	@Test
 	void round_brackets() {
 		newTest("round_bracket_single_line_removed")
-			.expect("Hello")
-			.forEntry("(HELP)Hello(help)");
+			.forEntry("(HELP)Hello(help)")
+			.expect("Hello");
 		
 		newTest("round_bracket_line_malformed")
-			.expect("(HELPHello(HELP")
-			.forEntry("(HELPHello(HELP");
+			.forEntry("(HELPHello(HELP")
+			.expect("(HELPHello(HELP");
 		
 		newTest("multi line round bracket")
-			.expectEmpty()
-			.forEntry("(These are", "two lines)");
+			.forEntry("(These are", "two lines)")
+			.expectEmpty();
 		
 		newTest("prefixed by dash")
-			.expect("Frenchie, I need", "your help, mate.")
-			.forEntry("-BUTCHER: Frenchie, I need", "your help, mate.", "-(Translucent shouts)");
+			.forEntry(
+					"-BUTCHER: Frenchie, I need", 
+					"your help, mate.", 
+					"-(Translucent shouts)")
+			.expect("Frenchie, I need", 
+					"your help, mate.");
 		
 		newTest("colon suffix")
-			.expect("No. No.")
-			.forEntry("(chuckles):", "No. No.");
+			.forEntry("(chuckles):", "No. No.")
+			.expect("No. No.");
 		
 		newTest("Only dash remaining")
-			.expectEmpty()
-			.forEntry("- (chuckles)");
+			.forEntry("- (chuckles)")
+			.expectEmpty();
 	}
 	
 	@Test
 	void empty_spaces() {
 		newTest("empty_spaces_removed")
-			.expect("Hello")
-			.forEntry(" (HELP) Hello (help) ");
+			.forEntry(" (HELP) Hello (help) ")
+			.expect("Hello");
 	}
 	
 	@Test
 	void all_caps() {
 		newTest("all_caps_removed")
-			.expectEmpty()
-			.forEntry("SCREAMING");
+			.forEntry("SCREAMING")
+			.expectEmpty();
+		
+		newTest("all caps should be removed even if multi-line")
+			.forEntry(
+					"Hello, Sanjeev.",
+					"CAVEMAN-LIKE GRUNTING")
+			.expect("Hello, Sanjeev.");
 	}
 	
 	@Test
 	void voice_notations() {
-		newTest("all caps voice").expect("Hello").forEntry("CHRIS: Hello");
-		newTest("non-caps voice").expect("Hello").forEntry("Chris: Hello");
-		newTest("all caps voice with number").expect("Hello").forEntry("GUARD 1: Hello");
-		newTest("non-caps voice with number").expect("Hello").forEntry("Guard 1: Hello");
+		newTest("all caps voice").forEntry("CHRIS: Hello").expect("Hello");
+		newTest("non-caps voice").forEntry("Chris: Hello").expect("Hello");
+		newTest("all caps voice with number").forEntry("GUARD 1: Hello").expect("Hello");
+		newTest("non-caps voice with number").forEntry("Guard 1: Hello").expect("Hello");
 		
-		newTest("all caps voice").expectEmpty().forEntry("CHRIS:");
-		newTest("non-caps voice").expectEmpty().forEntry("Chris:");
-		newTest("all caps voice with number").expectEmpty().forEntry("GUARD 1:");
-		newTest("non-caps voice with number").expectEmpty().forEntry("Guard 1:");
+		newTest("all caps voice").forEntry("CHRIS:").expectEmpty();
+		newTest("non-caps voice").forEntry("Chris:").expectEmpty();
+		newTest("all caps voice with number").forEntry("GUARD 1:").expectEmpty();
+		newTest("non-caps voice with number").forEntry("Guard 1:").expectEmpty();
 		
-		newTest("all caps voice").expectEmpty().forEntry("CHRIS' SON:");
-		newTest("all caps voice").expectEmpty().forEntry("DAN'S SON:");
-		newTest("non-caps voice").expectEmpty().forEntry("Chris' son:");
-		newTest("non-caps voice").expectEmpty().forEntry("Dan's son:");
+		newTest("all caps voice").forEntry("CHRIS' SON:").expectEmpty();
+		newTest("all caps voice").forEntry("DAN'S SON:").expectEmpty();
+		newTest("non-caps voice").forEntry("Chris' son:").expectEmpty();
+		newTest("non-caps voice").forEntry("Dan's son:").expectEmpty();
 		
-		newTest("all caps voice").expectEmpty().forEntry("RIGGS & MURTAUGH:");
-		newTest("non-caps voice").expectEmpty().forEntry("Riggs & Murtaugh:");
+		newTest("all caps voice").forEntry("RIGGS & MURTAUGH:").expectEmpty();
+		newTest("non-caps voice").forEntry("Riggs & Murtaugh:").expectEmpty();
 		
-		newTest("all caps voice").expectEmpty().forEntry("- CHRIS:");
-		newTest("non-caps voice").expectEmpty().forEntry("- Chris:");
-		newTest("all caps voice with number").expectEmpty().forEntry("- GUARD 1:");
-		newTest("non-caps voice with number").expectEmpty().forEntry("- Guard 1:");
+		newTest("all caps voice").forEntry("- CHRIS:").expectEmpty();
+		newTest("non-caps voice").forEntry("- Chris:").expectEmpty();
+		newTest("all caps voice with number").forEntry("- GUARD 1:").expectEmpty();
+		newTest("non-caps voice with number").forEntry("- Guard 1:").expectEmpty();
 		
-		newTest("all caps voice").expectEmpty().forEntry("-CHRIS:");
-		newTest("non-caps voice").expectEmpty().forEntry("-Chris:");
-		newTest("all caps voice with number").expectEmpty().forEntry("-GUARD 1:");
-		newTest("non-caps voice with number").expectEmpty().forEntry("-Guard 1:");
+		newTest("all caps voice").forEntry("-CHRIS:").expectEmpty();
+		newTest("non-caps voice").forEntry("-Chris:").expectEmpty();
+		newTest("all caps voice with number").forEntry("-GUARD 1:").expectEmpty();
+		newTest("non-caps voice with number").forEntry("-Guard 1:").expectEmpty();
+		
+		newTest("all caps voice in the middle of a line")
+			.forEntry("of another horn. MAISIE: Oh.")
+			.expect("of another horn. Oh.");
 		
 		newTest("multi-line all-caps voice")
-			.expect(
-					"..little Alex Horne!", 
-					"Hi, thank you.")
 			.forEntry(
 					"HIGH-PITCHED: ..little Alex Horne!", 
-					"Hi, thank you.");
-
+					"Hi, thank you.")
+			.expect(
+				"..little Alex Horne!", 
+				"Hi, thank you.");
 	}
 	
 	@Test
 	void lines_with_only_junk() {
-		newTest("only dash").expectEmpty().forEntry("-");
-		newTest("only song").expectEmpty().forEntry("♪ ♪");
+		newTest("only dash").forEntry("-").expectEmpty();
+		newTest("only song").forEntry("♪ ♪").expectEmpty();
 		
-		newTest("only dash").expect("Hello").forEntry("Hello", "-");
-		newTest("only song").expect("Hello").forEntry("♪ ♪", "Hello");
+		newTest("only dash").forEntry("Hello", "-").expect("Hello");
+		newTest("only song").forEntry("♪ ♪", "Hello").expect("Hello");
 	}
 	
 	@Test
 	void lines_with_broken_japanese_artefacts() {
 		
-		newTest("japanese artefacts").expectEmpty().forEntry("m 1737 191 l 1737 b -191 m 4521");
-		newTest("japanese artefacts2").expectEmpty().forEntry("m 2762.39 566.43 l 2464.00 566.43 2464.00 -40.23 2762.39 -40.23");
-		newTest("Contains real words").expect("m 1737 hello 191").forEntry("m 1737 hello 191");
+		newTest("japanese artefacts")
+			.forEntry("m 1737 191 l 1737 b -191 m 4521")
+			.expectEmpty();
+		
+		newTest("japanese artefacts2")
+			.forEntry("m 2762.39 566.43 l 2464.00 566.43 2464.00 -40.23 2762.39 -40.23")
+			.expectEmpty();
+		
+		newTest("Contains real words")
+			.forEntry("m 1737 hello 191")
+			.expect("m 1737 hello 191");
 	}
 	
 	@Test
@@ -168,6 +196,7 @@ class EntryScrubberTest {
 	private static class EntryTester {
 		private final EntryScrubber scrubber;
 		private final String message;
+		private List<String> inputLines;
 		private List<String> expectedLines;
 
 		EntryTester(EntryScrubber scrubber, String message) {
@@ -175,16 +204,20 @@ class EntryScrubberTest {
 			this.message = message;
 		}
 		
-		EntryTester expect(String... expectedLines) {
+		EntryTester forEntry(String... inputLines) {
+			this.inputLines = List.of(inputLines);
+			return this;
+		}
+		void expect(String... expectedLines) {
 			this.expectedLines = List.of(expectedLines);
-			return this;
+			execute();
 		}
-		EntryTester expectEmpty() {
+		void expectEmpty() {
 			this.expectedLines = Collections.emptyList();
-			return this;
+			execute();
 		}
-		void forEntry(String... inputLines) {
-			SubtitleEntry entry = new SubtitleEntry(1, "00:00:16,141 --> 00:00:18,727", List.of(inputLines));
+		void execute() {
+			SubtitleEntry entry = new SubtitleEntry(1, "00:00:16,141 --> 00:00:18,727", this.inputLines);
 			SubtitleEntry newEntry = scrubber.scrub(entry);
 			assertEquals(expectedLines, newEntry.getLines(), message);
 		}

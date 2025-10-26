@@ -25,10 +25,11 @@ class EntryScrubber {
 			+ ")");
 	
 	// All caps, at least 3 characters
-	private static final Pattern ALL_CAPS_PATTERN = Pattern.compile("^[A-Z ,\\!]{3,}$");
+	private static final Pattern ALL_CAPS_PATTERN = Pattern.compile("^[A-Z ,\\!\\-]{3,}$");
 	
 	// Names followed by colon: (Guard 1: Hello there)
 	private static final Pattern VOICE_INDICATORS_PATTERN = Pattern.compile("^[\\- ]*[A-Za-z]{2}[A-Za-z0-9 \'&\\-]*\\s?: *");
+	private static final Pattern VOICE_INDICATORS_MID_LINE_PATTERN = Pattern.compile("[\\- ]*[A-Z]{2}[A-Z0-9&\\-]*\\s?:");
 	
 	// All caps, at least 3 characters
 	private static final Pattern ONLY_JUNK_CHARACTERS = Pattern.compile("^[^A-Za-z0-9]*$");
@@ -62,6 +63,7 @@ class EntryScrubber {
 			modified = removeAll(JUNK_PATTERN, modified);
 	
 			modified = removeAll(VOICE_INDICATORS_PATTERN, modified);
+			modified = removeAll(VOICE_INDICATORS_MID_LINE_PATTERN, modified);
 			modified = removeAll(ALL_CAPS_PATTERN, modified);
 			modified = removeAll(JUNK_PATTERN, modified);
 			modified = removeAll(ONLY_JUNK_CHARACTERS, modified);
