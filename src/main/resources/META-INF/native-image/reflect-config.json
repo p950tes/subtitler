@@ -1,6 +1,6 @@
 [
   {
-    "name" : "se.p950tes.subtitler.cli.argprocessing.DisableSpaceSeparatorPreprocessor",
+    "name" : "se.p950tes.subtitler.cli.processing.DisableSpaceSeparatorPreprocessor",
     "allDeclaredConstructors" : true,
     "allPublicConstructors" : true,
     "allDeclaredMethods" : true,
@@ -9,7 +9,7 @@
     "allPublicFields" : true
   },
   {
-      "name" : "se.p950tes.subtitler.cli.argprocessing.DurationConverter",
+      "name" : "se.p950tes.subtitler.cli.processing.DurationTypeConverter",
       "allDeclaredConstructors" : true,
       "allPublicConstructors" : true,
       "allDeclaredMethods" : true,
