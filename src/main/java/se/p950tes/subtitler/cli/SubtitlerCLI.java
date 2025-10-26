@@ -7,8 +7,10 @@ import java.util.Optional;
 
 import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Command;
+import picocli.CommandLine.Model.CommandSpec;
 import picocli.CommandLine.Option;
 import picocli.CommandLine.Parameters;
+import picocli.CommandLine.Spec;
 import se.p950tes.subtitler.cli.processing.DisableSpaceSeparatorPreprocessor;
 import se.p950tes.subtitler.cli.processing.DurationTypeConverter;
 
@@ -20,7 +22,10 @@ import se.p950tes.subtitler.cli.processing.DurationTypeConverter;
 	)
 abstract class SubtitlerCLI {
 
-    @ArgGroup(exclusive = true, multiplicity = "1", heading = "Operation mode (exactly one required):%n")
+    @Spec
+    CommandSpec spec;
+	
+    @ArgGroup(exclusive = true, multiplicity = "0..1", heading = "Operation mode (exactly one required):%n")
     Mode mode;
     
     static class Mode {

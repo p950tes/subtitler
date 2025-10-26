@@ -4,6 +4,7 @@ import java.nio.file.Path;
 import java.util.concurrent.Callable;
 
 import picocli.CommandLine.ExitCode;
+import picocli.CommandLine.ParameterException;
 import se.p950tes.subtitler.executor.SubtitlerExecutor;
 import se.p950tes.subtitler.file.FileManager;
 import se.p950tes.subtitler.options.InputOptions;
@@ -40,10 +41,17 @@ public class ArgumentProcessor extends SubtitlerCLI implements Callable<Integer>
 	}
 
 	private TransformationOptions createTransformationOptions() {
-		return TransformationOptions.create()
+		if (mode == null) {
+			// Make scrubMode default if none are selected
+			mode = new Mode();
+			mode.scrubMode = true;
+		}
+		TransformationOptions options = TransformationOptions.create()
 				.withMergeMode(mode.mergeMode)
 				.withScrubMode(mode.scrubMode)
 				.withTimeShiftMode(mode.shift);
+		
+		return options;
 	}
 	
 	private InputOptions createInputOptions() {
@@ -69,12 +77,10 @@ public class ArgumentProcessor extends SubtitlerCLI implements Callable<Integer>
 		var transformationOptions = args.transformationOptions();
 		
 		if (inputOptions.stdIn() && !fileManager.isStdinAvailable()) {
-			System.err.println("No input specified and stdin is empty");
-			return false;
+            throw new ParameterException(spec.commandLine(), "No input specified and stdin is empty");
 		}
 		if (transformationOptions.mergeMode() && outputOptions.inPlaceEdit()) {
-			System.err.println("Cannot combine merge mode with in-place edit");
-			return false;
+			throw new ParameterException(spec.commandLine(), "Cannot combine merge mode with in-place edit");
 		}
 		
 		for (Path file : inputOptions.inputFiles()) {
