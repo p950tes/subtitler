@@ -20,6 +20,9 @@ public class SubtitlerExecutor {
 	public void execute(SubtitlerArguments arguments) {
 		this.args = arguments; 
 		
+		if (args.transformationOptions().timeShiftMode()) {
+			throw new UnsupportedOperationException("Time shift not yet implemented");
+		}
 		if (args.transformationOptions().scrubMode()) {
 			executeScrubOperation();
 		}
