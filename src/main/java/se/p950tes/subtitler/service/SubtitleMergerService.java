@@ -6,21 +6,22 @@ import java.util.List;
 import java.util.stream.Stream;
 
 import se.p950tes.subtitler.file.FileManager;
+import se.p950tes.subtitler.logging.Logger;
 import se.p950tes.subtitler.service.model.SubtitleEntry;
 import se.p950tes.subtitler.service.model.SubtitleFile;
 
 public class SubtitleMergerService {
 
 	private final FileManager fileManager;
-	private final boolean verbose;
+	private final Logger logger;
 	
-	public SubtitleMergerService(FileManager fileManager, boolean verbose) {
+	public SubtitleMergerService(FileManager fileManager, Logger logger) {
 		this.fileManager = fileManager;
-		this.verbose = verbose;
+		this.logger = logger;
 	}
 
 	public void merge(List<Path> inputFiles, Path outputFile) {
-		print("Processing: " + inputFiles);
+		logger.print("Processing: " + inputFiles);
 
 		List<SubtitleFile> parsedFiles = inputFiles.stream()
 				.map(this::parse)
@@ -31,7 +32,7 @@ public class SubtitleMergerService {
 		
 		List<SubtitleEntry> combinedEntries = EntryCollectionFinaliser.finalise(combinedEntryStream);
 		
-		printVerbose("Writing output file: " + outputFile);
+		logger.verbose("Writing output file: " + outputFile);
 		
 		try (PrintStream fileOutputStream = fileManager.openOutputStream(outputFile)) {
 			writeSubtitleContents(combinedEntries, fileOutputStream);
@@ -39,16 +40,16 @@ public class SubtitleMergerService {
 			throw new IllegalStateException("Failed to write output file", e);
 		}
 		
-		print("Input files: ");
+		logger.print("Input files: ");
 		parsedFiles.forEach(file -> {
-			print(file.getPath() + ": " + file.getEntries().size());
+			logger.print(file.getPath() + ": " + file.getEntries().size());
 		});
-		print("Output file:");
-		print(outputFile + ": " + combinedEntries.size());
+		logger.print("Output file:");
+		logger.print(outputFile + ": " + combinedEntries.size());
 	}
 	
 	private SubtitleFile parse(Path inputFile) {
-		SubtitleParser parser = new SubtitleParser(fileManager);
+		SubtitleParser parser = new SubtitleParser(fileManager, logger);
 		return parser.parse(inputFile);
 	}
 	
@@ -56,15 +57,6 @@ public class SubtitleMergerService {
 		for (SubtitleEntry entry : entries) {
 			outputStream.println(entry.toFormattedEntry());
 			outputStream.println();
-		}
-	}
-
-	private void print(String line) {
-		System.out.println(line);
-	}
-	private void printVerbose(String line) {
-		if (verbose) {
-			print(line);
 		}
 	}
 }

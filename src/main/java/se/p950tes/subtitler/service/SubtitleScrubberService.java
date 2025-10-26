@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Optional;
 
 import se.p950tes.subtitler.file.FileManager;
+import se.p950tes.subtitler.logging.Logger;
 import se.p950tes.subtitler.service.model.SubtitleEntry;
 import se.p950tes.subtitler.service.model.SubtitleFile;
 
@@ -14,22 +15,22 @@ public class SubtitleScrubberService {
 	private final FileManager fileManager;
 	private final boolean inPlaceEdit;
 	private final Optional<String> backupSuffix;
-	private final boolean verbose;
+	private final Logger logger;
 	
-	public SubtitleScrubberService(FileManager fileManager, boolean inPlaceEdit, Optional<String> backupSuffix, boolean verbose) {
+	public SubtitleScrubberService(FileManager fileManager, Logger logger, boolean inPlaceEdit, Optional<String> backupSuffix) {
 		this.fileManager = fileManager;
+		this.logger = logger;
 		this.inPlaceEdit = inPlaceEdit;
 		this.backupSuffix = backupSuffix;
-		this.verbose = verbose;
 	}
 
 	public void processFile(Path file) {
-		print("Processing: " + file);
+		logger.print("Processing: " + file);
 
-		SubtitleParser parser = new SubtitleParser(fileManager);
+		SubtitleParser parser = new SubtitleParser(fileManager, logger);
 		SubtitleFile subtitle = parser.parse(file);
 
-		EntryScrubber scrubber = new EntryScrubber();
+		EntryScrubber scrubber = new EntryScrubber(logger);
 		
 		var newEntryStream = subtitle.getEntries().stream()
 				.map(scrubber::scrub);
@@ -39,7 +40,7 @@ public class SubtitleScrubberService {
 		if (inPlaceEdit) {
 			if (backupSuffix.isPresent()) {
 				Path backupFile = fileManager.resolveBackupFile(file, backupSuffix.get());
-				printVerbose("Backing up original file to " + backupFile);
+				logger.verbose("Backing up original file to " + backupFile);
 				fileManager.copy(file, backupFile);
 			}
 			replaceInputFile(file, newEntries);
@@ -51,13 +52,13 @@ public class SubtitleScrubberService {
 	}
 
 	private void printSummary(List<SubtitleEntry> oldEntries, List<SubtitleEntry> newEntries) {
-		print(" * Entries modified: " + newEntries.stream().filter(SubtitleEntry::isModified).count());
-		print(" * Entries removed: " + (oldEntries.size() - newEntries.size()));
-		print(" * Entries remaining: " + newEntries.size());
+		logger.print(" * Entries modified: " + newEntries.stream().filter(SubtitleEntry::isModified).count());
+		logger.print(" * Entries removed: " + (oldEntries.size() - newEntries.size()));
+		logger.print(" * Entries remaining: " + newEntries.size());
 	}
 
 	private void replaceInputFile(Path originalPath, List<SubtitleEntry> entries) {
-		printVerbose("Overwriting original file: " + originalPath);
+		logger.verbose("Overwriting original file: " + originalPath);
 		try (PrintStream fileOutputStream = fileManager.openOutputStream(originalPath)) {
 			
 			writeSubtitleContents(entries, fileOutputStream);
@@ -71,15 +72,6 @@ public class SubtitleScrubberService {
 		for (SubtitleEntry entry : entries) {
 			outputStream.println(entry.toFormattedEntry());
 			outputStream.println();
-		}
-	}
-
-	private void print(String line) {
-		System.out.println(line);
-	}
-	private void printVerbose(String line) {
-		if (verbose) {
-			print(line);
 		}
 	}
 }

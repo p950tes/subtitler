@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.regex.Pattern;
 
 import se.p950tes.subtitler.file.FileManager;
+import se.p950tes.subtitler.logging.Logger;
 import se.p950tes.subtitler.service.model.SubtitleEntry;
 import se.p950tes.subtitler.service.model.SubtitleFile;
 
@@ -20,18 +21,20 @@ class SubtitleParser {
 
 	private final List<SubtitleEntry> entries = new ArrayList<>();
 	private final FileManager fileManager;
+	private final Logger logger;
 
 	private String currentIndex;
 	private String currentTimestamp;
 	private List<String> currentContent = new ArrayList<>();
 	private Type lastParsed;
 
-	public SubtitleParser(FileManager fileManager) {
+	public SubtitleParser(FileManager fileManager, Logger logger) {
 		this.fileManager = fileManager;
+		this.logger = logger;
 	}
 
 	public SubtitleFile parse(Path file) {
-
+		logger.verbose("Parsing: " + file);
 		List<String> lines = fileManager.readLinesFromFile(file);
 
 		for (int i = 0; i < lines.size(); i++) {
@@ -62,6 +65,7 @@ class SubtitleParser {
 			reset();
 		}
 		reset();
+		logger.verbose("Entries found: " + entries.size());
 		return new SubtitleFile(file, entries);
 	}
 

@@ -7,11 +7,12 @@ import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
+import se.p950tes.subtitler.logging.Logger;
 import se.p950tes.subtitler.service.model.SubtitleEntry;
 
 class EntryScrubberTest {
 
-	private final EntryScrubber scrubber = new EntryScrubber();
+	private final EntryScrubber scrubber = new EntryScrubber(new Logger());
 
 	@Test
 	void music_junk() {

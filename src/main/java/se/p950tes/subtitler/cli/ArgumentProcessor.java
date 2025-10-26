@@ -7,6 +7,7 @@ import picocli.CommandLine.ExitCode;
 import picocli.CommandLine.ParameterException;
 import se.p950tes.subtitler.executor.SubtitlerExecutor;
 import se.p950tes.subtitler.file.FileManager;
+import se.p950tes.subtitler.logging.Logger;
 import se.p950tes.subtitler.options.InputOptions;
 import se.p950tes.subtitler.options.OutputOptions;
 import se.p950tes.subtitler.options.SubtitlerArguments;
@@ -15,10 +16,12 @@ import se.p950tes.subtitler.options.TransformationOptions;
 public class ArgumentProcessor extends SubtitlerCLI implements Callable<Integer> {
 
 	private final FileManager fileManager;
+	private final Logger logger;
 	private final SubtitlerExecutor executor;
 	
-	public ArgumentProcessor(FileManager fileManager, SubtitlerExecutor executor) {
+	public ArgumentProcessor(FileManager fileManager, Logger logger, SubtitlerExecutor executor) {
 		this.fileManager = fileManager;
+		this.logger = logger;
 		this.executor = executor;
 	}
 
@@ -77,7 +80,7 @@ public class ArgumentProcessor extends SubtitlerCLI implements Callable<Integer>
 		var transformationOptions = args.transformationOptions();
 		
 		if (transformationOptions.timeShiftMode()) {
-			System.err.println("Time-shift operation not yet implemented");
+			logger.error("Time-shift operation not yet implemented");
 			return false;
 		}
 		if (inputOptions.stdIn() && !fileManager.isStdinAvailable()) {
@@ -98,20 +101,20 @@ public class ArgumentProcessor extends SubtitlerCLI implements Callable<Integer>
 	private boolean validateInputFile(Path file, SubtitlerArguments args) {
 		var outputOptions = args.outputOptions();
 		if (! fileManager.isReadableFile(file)) {
-			System.err.println("File is not readable: " + file.toAbsolutePath());
+			logger.error("File is not readable: " + file.toAbsolutePath());
 			return false;
 		}
 		if (outputOptions.inPlaceEdit() && !fileManager.isWritableFile(file)) {
-			System.err.println("In-place edit is enabled but file is not writeable: " + file.toAbsolutePath());
+			logger.error("In-place edit is enabled but file is not writeable: " + file.toAbsolutePath());
 			return false;
 		}
 		if (outputOptions.backupFileSuffix().isPresent()) {
 			Path backupFile = fileManager.resolveBackupFile(file, outputOptions.backupFileSuffix().get());
 			if (fileManager.fileExists(backupFile)) {
-				System.err.println("Backup file already exists: " + backupFile.toAbsolutePath());
+				logger.error("Backup file already exists: " + backupFile.toAbsolutePath());
 				return false;
 			} else if (! fileManager.isWritableFile(file)) {
-				System.err.println("Backup file is not writable: " + backupFile.toAbsolutePath());
+				logger.error("Backup file is not writable: " + backupFile.toAbsolutePath());
 				return false;
 			}
 		}

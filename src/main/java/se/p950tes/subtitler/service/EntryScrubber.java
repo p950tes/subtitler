@@ -6,6 +6,7 @@ import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.StringUtils;
 
+import se.p950tes.subtitler.logging.Logger;
 import se.p950tes.subtitler.service.model.SubtitleEntry;
 
 class EntryScrubber {
@@ -36,7 +37,12 @@ class EntryScrubber {
 	
 	private static final Pattern JAPANESE_JUNK_CHARACTERS = Pattern.compile("^m [0-9mbl \\.\\-]+$");
 
+	private final Logger logger;
 	
+	public EntryScrubber(Logger logger) {
+		this.logger = logger;
+	}
+
 	public SubtitleEntry scrub(SubtitleEntry entry) {
 		
 		String linesAsString = String.join("\n", entry.getLines());
@@ -49,7 +55,11 @@ class EntryScrubber {
 				.toList();
 		
 		SubtitleEntry newEntry = new SubtitleEntry(entry.getIndex(), entry.getTimestamp(), newLines);
-		newEntry.setModified(! entry.equals(newEntry));
+		
+		if (! entry.equals(newEntry)) {
+			entry.setModified(true);
+			logger.verbose("Entry modified. Original: \n{0}\nModified: \n{1}", entry, newEntry);
+		}
 		return newEntry;
 	}
 	

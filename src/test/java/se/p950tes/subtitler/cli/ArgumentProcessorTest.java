@@ -24,6 +24,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import picocli.CommandLine;
 import se.p950tes.subtitler.executor.SubtitlerExecutor;
 import se.p950tes.subtitler.file.FileManager;
+import se.p950tes.subtitler.logging.Logger;
 import se.p950tes.subtitler.options.SubtitlerArguments;
 
 @ExtendWith(MockitoExtension.class)
@@ -33,9 +34,10 @@ class ArgumentProcessorTest {
 	private ArgumentCaptor<SubtitlerArguments> captor;
 	
 	private FileManager fileManager = mock(FileManager.class);
-	private SubtitlerExecutor executor = mock(SubtitlerExecutor.class);;
+	private SubtitlerExecutor executor = mock(SubtitlerExecutor.class);
+	private Logger logger = mock(Logger.class);
 	
-	private ArgumentProcessor processor = new ArgumentProcessor(fileManager, executor);
+	private ArgumentProcessor processor = new ArgumentProcessor(fileManager, logger, executor);
 	private CommandLine commandLine = new CommandLine(processor);
 	
 	@Test

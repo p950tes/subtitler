@@ -1,31 +1,29 @@
 package se.p950tes.subtitler.service;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import java.nio.file.Path;
 import java.util.List;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import se.p950tes.subtitler.file.FileManager;
+import se.p950tes.subtitler.logging.Logger;
 import se.p950tes.subtitler.service.model.SubtitleEntry;
 import se.p950tes.subtitler.service.model.SubtitleFile;
 
 @ExtendWith(MockitoExtension.class)
 class SubtitleParserTest {
 
-	@Mock
-	private Path file;
-	@Mock
-	private FileManager fileManager;
+	private Path file = mock(Path.class);
+	private FileManager fileManager = mock(FileManager.class);
+	private Logger logger = new Logger();
 	
-	@InjectMocks
-	private SubtitleParser parser;
+	private SubtitleParser parser = new SubtitleParser(fileManager, logger);
 	
 	@Test
 	void single_entry() {
