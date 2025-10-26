@@ -76,6 +76,10 @@ public class ArgumentProcessor extends SubtitlerCLI implements Callable<Integer>
 		var outputOptions = args.outputOptions();
 		var transformationOptions = args.transformationOptions();
 		
+		if (transformationOptions.timeShiftMode()) {
+			System.err.println("Time-shift operation not yet implemented");
+			return false;
+		}
 		if (inputOptions.stdIn() && !fileManager.isStdinAvailable()) {
             throw new ParameterException(spec.commandLine(), "No input specified and stdin is empty");
 		}
