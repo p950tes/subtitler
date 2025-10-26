@@ -126,6 +126,15 @@ class EntryScrubberTest {
 		newTest("non-caps voice").expectEmpty().forEntry("-Chris:");
 		newTest("all caps voice with number").expectEmpty().forEntry("-GUARD 1:");
 		newTest("non-caps voice with number").expectEmpty().forEntry("-Guard 1:");
+		
+		newTest("multi-line all-caps voice")
+			.expect(
+					"..little Alex Horne!", 
+					"Hi, thank you.")
+			.forEntry(
+					"HIGH-PITCHED: ..little Alex Horne!", 
+					"Hi, thank you.");
+
 	}
 	
 	@Test
