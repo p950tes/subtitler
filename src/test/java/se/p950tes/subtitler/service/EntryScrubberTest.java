@@ -1,6 +1,7 @@
 package se.p950tes.subtitler.service;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.Collections;
 import java.util.List;
@@ -22,61 +23,83 @@ class EntryScrubberTest {
 					"if you got the time j“")
 			.expect(
 					"well, I hear it's fine", 
-					"if you got the time");
+					"if you got the time")
+			.expectModified(true)
+			.run();
 		
 		newTest("music junk")
 			.forEntry(
 					"J“ I might be mistaken", 
 					"hm, hm, hm j“j“")
 			.expect("I might be mistaken", 
-					"hm, hm, hm");
+					"hm, hm, hm")
+			.expectModified(true)
+			.run();
 		
 		newTest("music junk")
 			.forEntry("[J“j“j“]")
-			.expectEmpty();
+			.expectEmpty()
+			.expectModified(true)
+			.run();
 		
 		newTest("music junk")
 			.forEntry("[Men whooping]", "{\\an2}")
-			.expectEmpty();
+			.expectEmpty()
+			.expectModified(true)
+			.run();
 	}
 	
 	@Test
 	void html() {
 		newTest("html_single_line_removed")
 			.forEntry("<p>Hello</p><br/>")
-			.expect("Hello");
+			.expect("Hello")
+			.expectModified(true)
+			.run();
 		
 		newTest("html_single_line_malformed")
 			.forEntry("<pHello</p><br/>")
-			.expect("<pHello");
+			.expect("<pHello")
+			.expectModified(true)
+			.run();
 	}
 	@Test
 	void square_brackets() {
 		newTest("square_bracket_single_line_removed")
 			.forEntry("[HELP]Hello[help]")
-			.expect("Hello");
+			.expect("Hello")
+			.expectModified(true)
+			.run();
 		
 		newTest("square_bracket_line_malformed")
 			.forEntry("[HELPHello[HELP")
-			.expect("[HELPHello[HELP");
+			.expectModified(false)
+			.run();
 		
 		newTest("multi line square bracket")
 			.forEntry("[These are", "two lines]")
-			.expectEmpty();
+			.expectEmpty()
+			.expectModified(true)
+			.run();
 	}
 	@Test
 	void round_brackets() {
 		newTest("round_bracket_single_line_removed")
 			.forEntry("(HELP)Hello(help)")
-			.expect("Hello");
+			.expect("Hello")
+			.expectModified(true)
+			.run();
 		
 		newTest("round_bracket_line_malformed")
 			.forEntry("(HELPHello(HELP")
-			.expect("(HELPHello(HELP");
+			.expectModified(false)
+			.run();
 		
 		newTest("multi line round bracket")
 			.forEntry("(These are", "two lines)")
-			.expectEmpty();
+			.expectEmpty()
+			.expectModified(true)
+			.run();
 		
 		newTest("prefixed by dash")
 			.forEntry(
@@ -84,70 +107,84 @@ class EntryScrubberTest {
 					"your help, mate.", 
 					"-(Translucent shouts)")
 			.expect("Frenchie, I need", 
-					"your help, mate.");
+					"your help, mate.")
+			.expectModified(true)
+			.run();
 		
 		newTest("colon suffix")
 			.forEntry("(chuckles):", "No. No.")
-			.expect("No. No.");
+			.expect("No. No.")
+			.expectModified(true)
+			.run();
 		
 		newTest("Only dash remaining")
 			.forEntry("- (chuckles)")
-			.expectEmpty();
+			.expectEmpty()
+			.expectModified(true)
+			.run();
 	}
 	
 	@Test
 	void empty_spaces() {
 		newTest("empty_spaces_removed")
 			.forEntry(" (HELP) Hello (help) ")
-			.expect("Hello");
+			.expect("Hello")
+			.expectModified(true)
+			.run();
 	}
 	
 	@Test
 	void all_caps() {
 		newTest("all_caps_removed")
 			.forEntry("SCREAMING")
-			.expectEmpty();
+			.expectEmpty()
+			.expectModified(true)
+			.run();
 		
 		newTest("all caps should be removed even if multi-line")
 			.forEntry(
 					"Hello, Sanjeev.",
 					"CAVEMAN-LIKE GRUNTING")
-			.expect("Hello, Sanjeev.");
+			.expect("Hello, Sanjeev.")
+			.expectModified(true)
+			.run();
 	}
 	
 	@Test
 	void voice_notations() {
-		newTest("all caps voice").forEntry("CHRIS: Hello").expect("Hello");
-		newTest("non-caps voice").forEntry("Chris: Hello").expect("Hello");
-		newTest("all caps voice with number").forEntry("GUARD 1: Hello").expect("Hello");
-		newTest("non-caps voice with number").forEntry("Guard 1: Hello").expect("Hello");
+		newTest("all caps voice").forEntry("CHRIS: Hello").expect("Hello").expectModified(true).run();
+		newTest("non-caps voice").forEntry("Chris: Hello").expect("Hello").expectModified(true).run();
+		newTest("all caps voice with number").forEntry("GUARD 1: Hello").expect("Hello").expectModified(true).run();
+		newTest("non-caps voice with number").forEntry("Guard 1: Hello").expect("Hello").expectModified(true).run();
 		
-		newTest("all caps voice").forEntry("CHRIS:").expectEmpty();
-		newTest("non-caps voice").forEntry("Chris:").expectEmpty();
-		newTest("all caps voice with number").forEntry("GUARD 1:").expectEmpty();
-		newTest("non-caps voice with number").forEntry("Guard 1:").expectEmpty();
+		newTest("all caps voice").forEntry("CHRIS:").expectEmpty().expectModified(true).run();
+		newTest("non-caps voice").forEntry("Chris:").expectEmpty().expectModified(true).run();
+		newTest("all caps voice with number").forEntry("GUARD 1:").expectEmpty().expectModified(true).run();
+		newTest("non-caps voice with number").forEntry("Guard 1:").expectEmpty().expectModified(true).run();
 		
-		newTest("all caps voice").forEntry("CHRIS' SON:").expectEmpty();
-		newTest("all caps voice").forEntry("DAN'S SON:").expectEmpty();
-		newTest("non-caps voice").forEntry("Chris' son:").expectEmpty();
-		newTest("non-caps voice").forEntry("Dan's son:").expectEmpty();
+		newTest("all caps voice").forEntry("CHRIS' SON:").expectEmpty().expectModified(true).run();
+		newTest("all caps voice").forEntry("DAN'S SON:").expectEmpty().expectModified(true).run();
+		newTest("non-caps voice").forEntry("Chris' son:").expectEmpty().expectModified(true).run();
+		newTest("non-caps voice").forEntry("Dan's son:").expectEmpty().expectModified(true).run();
 		
-		newTest("all caps voice").forEntry("RIGGS & MURTAUGH:").expectEmpty();
-		newTest("non-caps voice").forEntry("Riggs & Murtaugh:").expectEmpty();
+		newTest("all caps voice").forEntry("RIGGS & MURTAUGH:").expectEmpty().expectModified(true).run();
+		newTest("non-caps voice").forEntry("Riggs & Murtaugh:").expectEmpty().expectModified(true).run();
 		
-		newTest("all caps voice").forEntry("- CHRIS:").expectEmpty();
-		newTest("non-caps voice").forEntry("- Chris:").expectEmpty();
-		newTest("all caps voice with number").forEntry("- GUARD 1:").expectEmpty();
-		newTest("non-caps voice with number").forEntry("- Guard 1:").expectEmpty();
+		newTest("all caps voice").forEntry("- CHRIS:").expectEmpty().expectModified(true).run();
+		newTest("non-caps voice").forEntry("- Chris:").expectEmpty().expectModified(true).run();
+		newTest("all caps voice with number").forEntry("- GUARD 1:").expectEmpty().expectModified(true).run();
+		newTest("non-caps voice with number").forEntry("- Guard 1:").expectEmpty().expectModified(true).run();
 		
-		newTest("all caps voice").forEntry("-CHRIS:").expectEmpty();
-		newTest("non-caps voice").forEntry("-Chris:").expectEmpty();
-		newTest("all caps voice with number").forEntry("-GUARD 1:").expectEmpty();
-		newTest("non-caps voice with number").forEntry("-Guard 1:").expectEmpty();
+		newTest("all caps voice").forEntry("-CHRIS:").expectEmpty().expectModified(true).run();
+		newTest("non-caps voice").forEntry("-Chris:").expectEmpty().expectModified(true).run();
+		newTest("all caps voice with number").forEntry("-GUARD 1:").expectEmpty().expectModified(true).run();
+		newTest("non-caps voice with number").forEntry("-Guard 1:").expectEmpty().expectModified(true).run();
 		
 		newTest("all caps voice in the middle of a line")
 			.forEntry("of another horn. MAISIE: Oh.")
-			.expect("of another horn. Oh.");
+			.expect("of another horn. Oh.")
+			.expectModified(true)
+			.run();
 		
 		newTest("multi-line all-caps voice")
 			.forEntry(
@@ -155,16 +192,18 @@ class EntryScrubberTest {
 					"Hi, thank you.")
 			.expect(
 				"..little Alex Horne!", 
-				"Hi, thank you.");
+				"Hi, thank you.")
+			.expectModified(true)
+			.run();
 	}
 	
 	@Test
 	void lines_with_only_junk() {
-		newTest("only dash").forEntry("-").expectEmpty();
-		newTest("only song").forEntry("♪ ♪").expectEmpty();
+		newTest("only dash").forEntry("-").expectEmpty().expectModified(true).run();
+		newTest("only song").forEntry("♪ ♪").expectEmpty().expectModified(true).run();
 		
-		newTest("only dash").forEntry("Hello", "-").expect("Hello");
-		newTest("only song").forEntry("♪ ♪", "Hello").expect("Hello");
+		newTest("only dash").forEntry("Hello", "-").expect("Hello").expectModified(true).run();
+		newTest("only song").forEntry("♪ ♪", "Hello").expect("Hello").expectModified(true).run();
 	}
 	
 	@Test
@@ -172,15 +211,20 @@ class EntryScrubberTest {
 		
 		newTest("japanese artefacts")
 			.forEntry("m 1737 191 l 1737 b -191 m 4521")
-			.expectEmpty();
+			.expectEmpty()
+			.expectModified(true)
+			.run();
 		
 		newTest("japanese artefacts2")
 			.forEntry("m 2762.39 566.43 l 2464.00 566.43 2464.00 -40.23 2762.39 -40.23")
-			.expectEmpty();
+			.expectEmpty()
+			.expectModified(true)
+			.run();
 		
 		newTest("Contains real words")
 			.forEntry("m 1737 hello 191")
-			.expect("m 1737 hello 191");
+			.expectModified(false)
+			.run();
 	}
 	
 	@Test
@@ -188,6 +232,7 @@ class EntryScrubberTest {
 		SubtitleEntry entry = new SubtitleEntry(9, "00:00:38,038 --> 00:00:40,249", List.of("-FRENCHIE: Who is he?", "-Oh, this here", "is Hughie Campbell."));
 		SubtitleEntry newEntry = scrubber.scrub(entry);
 		assertEquals(List.of("Who is he?", "-Oh, this here", "is Hughie Campbell."), newEntry.getLines());
+		assertTrue(newEntry.isModified(), "Expected entry to be modified");
 	}
 
 	private EntryTester newTest(String message) {
@@ -199,6 +244,7 @@ class EntryScrubberTest {
 		private final String message;
 		private List<String> inputLines;
 		private List<String> expectedLines;
+		private Boolean expectedModified;
 
 		EntryTester(EntryScrubber scrubber, String message) {
 			this.scrubber = scrubber;
@@ -209,18 +255,27 @@ class EntryScrubberTest {
 			this.inputLines = List.of(inputLines);
 			return this;
 		}
-		void expect(String... expectedLines) {
+		EntryTester expectModified(boolean expectedModified) {
+			this.expectedModified = expectedModified;
+			return this;
+		}
+		EntryTester expect(String... expectedLines) {
 			this.expectedLines = List.of(expectedLines);
-			execute();
+			return this;
 		}
-		void expectEmpty() {
+		EntryTester expectEmpty() {
 			this.expectedLines = Collections.emptyList();
-			execute();
+			return this;
 		}
-		void execute() {
+		void run() {
 			SubtitleEntry entry = new SubtitleEntry(1, "00:00:16,141 --> 00:00:18,727", this.inputLines);
 			SubtitleEntry newEntry = scrubber.scrub(entry);
-			assertEquals(expectedLines, newEntry.getLines(), message);
+			if (expectedLines != null) {
+				assertEquals(expectedLines, newEntry.getLines(), message);
+			}
+			if (expectedModified != null) {
+				assertEquals(expectedModified, newEntry.isModified(), "Expected entry to be modified");
+			}
 		}
 	}
 }

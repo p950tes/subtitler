@@ -57,7 +57,7 @@ class EntryScrubber {
 		SubtitleEntry newEntry = new SubtitleEntry(entry.getIndex(), entry.getTimestamp(), newLines);
 		
 		if (! entry.equals(newEntry)) {
-			entry.setModified(true);
+			newEntry.setModified(true);
 			logger.verbose("Entry modified. Original: \n{0}\nModified: \n{1}", entry, newEntry);
 		}
 		return newEntry;
