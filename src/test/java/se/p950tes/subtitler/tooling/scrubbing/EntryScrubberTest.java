@@ -153,32 +153,21 @@ class EntryScrubberTest {
 	@Test
 	void voice_notations() {
 		newTest("all caps voice").forEntry("CHRIS: Hello").expect("Hello").expectModified(true).run();
-		newTest("non-caps voice").forEntry("Chris: Hello").expect("Hello").expectModified(true).run();
 		newTest("all caps voice with number").forEntry("GUARD 1: Hello").expect("Hello").expectModified(true).run();
-		newTest("non-caps voice with number").forEntry("Guard 1: Hello").expect("Hello").expectModified(true).run();
 		
 		newTest("all caps voice").forEntry("CHRIS:").expectEmpty().expectModified(true).run();
-		newTest("non-caps voice").forEntry("Chris:").expectEmpty().expectModified(true).run();
 		newTest("all caps voice with number").forEntry("GUARD 1:").expectEmpty().expectModified(true).run();
-		newTest("non-caps voice with number").forEntry("Guard 1:").expectEmpty().expectModified(true).run();
 		
 		newTest("all caps voice").forEntry("CHRIS' SON:").expectEmpty().expectModified(true).run();
 		newTest("all caps voice").forEntry("DAN'S SON:").expectEmpty().expectModified(true).run();
-		newTest("non-caps voice").forEntry("Chris' son:").expectEmpty().expectModified(true).run();
-		newTest("non-caps voice").forEntry("Dan's son:").expectEmpty().expectModified(true).run();
 		
 		newTest("all caps voice").forEntry("RIGGS & MURTAUGH:").expectEmpty().expectModified(true).run();
-		newTest("non-caps voice").forEntry("Riggs & Murtaugh:").expectEmpty().expectModified(true).run();
 		
 		newTest("all caps voice").forEntry("- CHRIS:").expectEmpty().expectModified(true).run();
-		newTest("non-caps voice").forEntry("- Chris:").expectEmpty().expectModified(true).run();
 		newTest("all caps voice with number").forEntry("- GUARD 1:").expectEmpty().expectModified(true).run();
-		newTest("non-caps voice with number").forEntry("- Guard 1:").expectEmpty().expectModified(true).run();
 		
 		newTest("all caps voice").forEntry("-CHRIS:").expectEmpty().expectModified(true).run();
-		newTest("non-caps voice").forEntry("-Chris:").expectEmpty().expectModified(true).run();
 		newTest("all caps voice with number").forEntry("-GUARD 1:").expectEmpty().expectModified(true).run();
-		newTest("non-caps voice with number").forEntry("-Guard 1:").expectEmpty().expectModified(true).run();
 		
 		newTest("all caps voice in the middle of a line")
 			.forEntry("of another horn. MAISIE: Oh.")
@@ -194,6 +183,12 @@ class EntryScrubberTest {
 				"..little Alex Horne!", 
 				"Hi, thank you.")
 			.expectModified(true)
+			.run();
+		
+		newTest("non-voice line ending with colon")
+			.forEntry("He said something like:")
+			.expect("He said something like:")
+			.expectModified(false)
 			.run();
 	}
 	
@@ -234,7 +229,7 @@ class EntryScrubberTest {
 		assertEquals(List.of("Who is he?", "-Oh, this here", "is Hughie Campbell."), newEntry.getLines());
 		assertTrue(newEntry.isModified(), "Expected entry to be modified");
 	}
-
+	
 	private EntryTester newTest(String message) {
 		return new EntryTester(scrubber, message);
 	}
