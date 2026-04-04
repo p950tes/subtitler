@@ -5,19 +5,23 @@ import java.nio.file.Path;
 import java.util.List;
 import java.util.stream.Stream;
 
-import se.p950tes.subtitler.file.FileManager;
+import se.p950tes.subtitler.io.FileManager;
 import se.p950tes.subtitler.logging.Logger;
-import se.p950tes.subtitler.service.model.SubtitleEntry;
-import se.p950tes.subtitler.service.model.SubtitleFile;
+import se.p950tes.subtitler.model.SubtitleEntry;
+import se.p950tes.subtitler.model.SubtitleFile;
+import se.p950tes.subtitler.tooling.parsing.SubtitleParser;
+import se.p950tes.subtitler.tooling.parsing.SubtitleParserFactory;
 
 public class SubtitleMergerService {
 
 	private final FileManager fileManager;
 	private final Logger logger;
+	private final SubtitleParserFactory subtitleParserFactory;
 	
-	public SubtitleMergerService(FileManager fileManager, Logger logger) {
-		this.fileManager = fileManager;
+	public SubtitleMergerService(Logger logger, FileManager fileManager, SubtitleParserFactory subtitleParserFactory) {
 		this.logger = logger;
+		this.fileManager = fileManager;
+		this.subtitleParserFactory = subtitleParserFactory;
 	}
 
 	public void merge(List<Path> inputFiles, Path outputFile) {
@@ -49,8 +53,8 @@ public class SubtitleMergerService {
 	}
 	
 	private SubtitleFile parse(Path inputFile) {
-		SubtitleParser parser = new SubtitleParser(fileManager, logger);
-		return parser.parse(inputFile);
+		SubtitleParser parser = subtitleParserFactory.newParser(inputFile);
+		return parser.parse();
 	}
 	
 	private void writeSubtitleContents(List<SubtitleEntry> entries, PrintStream outputStream) {

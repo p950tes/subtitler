@@ -3,7 +3,7 @@ package se.p950tes.subtitler;
 import picocli.CommandLine;
 import se.p950tes.subtitler.cli.ArgumentProcessor;
 import se.p950tes.subtitler.executor.SubtitlerExecutor;
-import se.p950tes.subtitler.file.FileManager;
+import se.p950tes.subtitler.io.FileManager;
 import se.p950tes.subtitler.logging.Logger;
 
 public class SubtitlerApplication {

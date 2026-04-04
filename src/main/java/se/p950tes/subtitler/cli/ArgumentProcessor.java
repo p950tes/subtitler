@@ -6,12 +6,12 @@ import java.util.concurrent.Callable;
 import picocli.CommandLine.ExitCode;
 import picocli.CommandLine.ParameterException;
 import se.p950tes.subtitler.executor.SubtitlerExecutor;
-import se.p950tes.subtitler.file.FileManager;
+import se.p950tes.subtitler.io.FileManager;
 import se.p950tes.subtitler.logging.Logger;
-import se.p950tes.subtitler.options.InputOptions;
-import se.p950tes.subtitler.options.OutputOptions;
-import se.p950tes.subtitler.options.SubtitlerArguments;
-import se.p950tes.subtitler.options.TransformationOptions;
+import se.p950tes.subtitler.model.options.InputOptions;
+import se.p950tes.subtitler.model.options.OutputOptions;
+import se.p950tes.subtitler.model.options.SubtitlerArguments;
+import se.p950tes.subtitler.model.options.TransformationOptions;
 
 public class ArgumentProcessor extends SubtitlerCLI implements Callable<Integer> {
 

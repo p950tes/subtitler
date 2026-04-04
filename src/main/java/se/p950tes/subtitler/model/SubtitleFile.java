@@ -1,4 +1,4 @@
-package se.p950tes.subtitler.service.model;
+package se.p950tes.subtitler.model;
 
 import java.nio.file.Path;
 import java.util.List;

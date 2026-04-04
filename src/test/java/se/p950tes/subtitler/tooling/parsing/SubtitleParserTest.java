@@ -1,7 +1,6 @@
-package se.p950tes.subtitler.service;
+package se.p950tes.subtitler.tooling.parsing;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.nio.file.Path;
@@ -9,21 +8,27 @@ import java.util.List;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import se.p950tes.subtitler.file.FileManager;
+import se.p950tes.subtitler.io.FileManager;
 import se.p950tes.subtitler.logging.Logger;
-import se.p950tes.subtitler.service.model.SubtitleEntry;
-import se.p950tes.subtitler.service.model.SubtitleFile;
+import se.p950tes.subtitler.model.SubtitleEntry;
+import se.p950tes.subtitler.model.SubtitleFile;
 
 @ExtendWith(MockitoExtension.class)
 class SubtitleParserTest {
 
-	private Path file = mock(Path.class);
-	private FileManager fileManager = mock(FileManager.class);
-	private Logger logger = new Logger();
+	@Mock
+	private Path file;
+	@Mock
+	private FileManager fileManager;
+	@Mock
+	private Logger logger;
 	
-	private SubtitleParser parser = new SubtitleParser(fileManager, logger);
+	@InjectMocks
+	private SubtitleParserFactory factory;
 	
 	@Test
 	void single_entry() {
@@ -34,7 +39,7 @@ class SubtitleParserTest {
 There is no stopping in the red zone.
 """));
 		
-		SubtitleFile result = parser.parse(file);
+		SubtitleFile result = factory.newParser(file).parse();
 		assertEquals(file, result.getPath());
 		assertEquals(1, result.getEntries().size());
 		
@@ -58,7 +63,7 @@ The white zone is for immediate loading
 and unloading of passengers only.
 """));
 		
-		SubtitleFile result = parser.parse(file);
+		SubtitleFile result = factory.newParser(file).parse();
 		assertEquals(file, result.getPath());
 		
 		List<SubtitleEntry> entries = result.getEntries();

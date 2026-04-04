@@ -1,4 +1,4 @@
-package se.p950tes.subtitler.file;
+package se.p950tes.subtitler.io;
 
 import java.io.File;
 import java.io.IOException;

@@ -1,16 +1,16 @@
-package se.p950tes.subtitler.service;
+package se.p950tes.subtitler.tooling.parsing;
 
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
 
-import se.p950tes.subtitler.file.FileManager;
+import se.p950tes.subtitler.io.FileManager;
 import se.p950tes.subtitler.logging.Logger;
-import se.p950tes.subtitler.service.model.SubtitleEntry;
-import se.p950tes.subtitler.service.model.SubtitleFile;
+import se.p950tes.subtitler.model.SubtitleEntry;
+import se.p950tes.subtitler.model.SubtitleFile;
 
-class SubtitleParser {
+public class SubtitleParser {
 
 	private static final Pattern INDEX_PATTERN = Pattern.compile("^\\d+$");
 	private static final Pattern TIMESTAMP_PATTERN = Pattern.compile("^[\\d:,]+\\s+" + Pattern.quote("-->") + "\\s+[\\d:,]+$");
@@ -22,18 +22,20 @@ class SubtitleParser {
 	private final List<SubtitleEntry> entries = new ArrayList<>();
 	private final FileManager fileManager;
 	private final Logger logger;
+	private final Path file;
 
 	private String currentIndex;
 	private String currentTimestamp;
 	private List<String> currentContent = new ArrayList<>();
 	private Type lastParsed;
 
-	public SubtitleParser(FileManager fileManager, Logger logger) {
+	public SubtitleParser(Logger logger, FileManager fileManager, Path file) {
 		this.fileManager = fileManager;
 		this.logger = logger;
+		this.file = file;
 	}
 
-	public SubtitleFile parse(Path file) {
+	public SubtitleFile parse() {
 		logger.verbose("Parsing: " + file);
 		List<String> lines = fileManager.readLinesFromFile(file);
 

@@ -8,7 +8,7 @@ import java.util.stream.Stream;
 
 import org.apache.commons.lang3.ObjectUtils;
 
-import se.p950tes.subtitler.service.model.SubtitleEntry;
+import se.p950tes.subtitler.model.SubtitleEntry;
 
 public class EntryCollectionFinaliser {
 

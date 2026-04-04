@@ -1,4 +1,4 @@
-package se.p950tes.subtitler.service;
+package se.p950tes.subtitler.tooling.scrubbing;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -9,7 +9,7 @@ import java.util.List;
 import org.junit.jupiter.api.Test;
 
 import se.p950tes.subtitler.logging.Logger;
-import se.p950tes.subtitler.service.model.SubtitleEntry;
+import se.p950tes.subtitler.model.SubtitleEntry;
 
 class EntryScrubberTest {
 

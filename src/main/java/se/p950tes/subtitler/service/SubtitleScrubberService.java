@@ -5,21 +5,27 @@ import java.nio.file.Path;
 import java.util.List;
 import java.util.Optional;
 
-import se.p950tes.subtitler.file.FileManager;
+import se.p950tes.subtitler.io.FileManager;
 import se.p950tes.subtitler.logging.Logger;
-import se.p950tes.subtitler.service.model.SubtitleEntry;
-import se.p950tes.subtitler.service.model.SubtitleFile;
+import se.p950tes.subtitler.model.SubtitleEntry;
+import se.p950tes.subtitler.model.SubtitleFile;
+import se.p950tes.subtitler.tooling.parsing.SubtitleParser;
+import se.p950tes.subtitler.tooling.parsing.SubtitleParserFactory;
+import se.p950tes.subtitler.tooling.scrubbing.EntryScrubber;
 
 public class SubtitleScrubberService {
 
+	private final Logger logger;
 	private final FileManager fileManager;
+	private final SubtitleParserFactory subtitleParserFactory;
+	
 	private final boolean inPlaceEdit;
 	private final Optional<String> backupSuffix;
-	private final Logger logger;
 	
-	public SubtitleScrubberService(FileManager fileManager, Logger logger, boolean inPlaceEdit, Optional<String> backupSuffix) {
-		this.fileManager = fileManager;
+	public SubtitleScrubberService(Logger logger, FileManager fileManager, SubtitleParserFactory subtitleParserFactory, boolean inPlaceEdit, Optional<String> backupSuffix) {
 		this.logger = logger;
+		this.fileManager = fileManager;
+		this.subtitleParserFactory = subtitleParserFactory;
 		this.inPlaceEdit = inPlaceEdit;
 		this.backupSuffix = backupSuffix;
 	}
@@ -27,8 +33,8 @@ public class SubtitleScrubberService {
 	public void processFile(Path file) {
 		logger.print("Processing: " + file);
 
-		SubtitleParser parser = new SubtitleParser(fileManager, logger);
-		SubtitleFile subtitle = parser.parse(file);
+		SubtitleParser parser = subtitleParserFactory.newParser(file);
+		SubtitleFile subtitle = parser.parse();
 
 		EntryScrubber scrubber = new EntryScrubber(logger);
 		
