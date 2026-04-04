@@ -1,4 +1,4 @@
-package se.p950tes.subtitler.service;
+package se.p950tes.subtitler.tooling.scrubbing;
 
 import java.util.Arrays;
 import java.util.Objects;
@@ -7,9 +7,9 @@ import java.util.regex.Pattern;
 import org.apache.commons.lang3.StringUtils;
 
 import se.p950tes.subtitler.logging.Logger;
-import se.p950tes.subtitler.service.model.SubtitleEntry;
+import se.p950tes.subtitler.model.SubtitleEntry;
 
-class EntryScrubber {
+public class EntryScrubber {
 
 	private static final Pattern HTML_PATTERN = Pattern.compile("<[^<>]*>");
 

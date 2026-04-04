@@ -23,9 +23,9 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import picocli.CommandLine;
 import se.p950tes.subtitler.executor.SubtitlerExecutor;
-import se.p950tes.subtitler.file.FileManager;
+import se.p950tes.subtitler.io.FileManager;
 import se.p950tes.subtitler.logging.Logger;
-import se.p950tes.subtitler.options.SubtitlerArguments;
+import se.p950tes.subtitler.model.options.SubtitlerArguments;
 
 @ExtendWith(MockitoExtension.class)
 class ArgumentProcessorTest {

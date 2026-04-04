@@ -1,4 +1,4 @@
-package se.p950tes.subtitler.options;
+package se.p950tes.subtitler.model.options;
 
 import java.nio.file.Path;
 import java.util.Optional;
