@@ -12,7 +12,7 @@ Point the GRAALVM_HOME environment variable to the graalvm directory
 Example:
 
 ```
-export GRAALVM_HOME="/opt/graalvm/graalvm-jdk-25.0.1+8.1"
+export GRAALVM_HOME="/opt/graalvm/graalvm-jdk-25.0.2+10.1"
 ```
 
 Then execute the nativeCompile gradle command:
