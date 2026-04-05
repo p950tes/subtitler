@@ -34,6 +34,9 @@ public class FileManager {
 		OutputStream fileOutputStream = Files.newOutputStream(file);
 		return new PrintStream(fileOutputStream);
 	}
+	public PrintStream getSystemOutStream() {
+		return System.out;
+	}
 	
 	public void copy(Path source, Path destination) {
 		try {

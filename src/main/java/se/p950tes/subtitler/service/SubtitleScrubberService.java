@@ -51,7 +51,7 @@ public class SubtitleScrubberService {
 			}
 			replaceInputFile(file, newEntries);
 		} else {
-			writeSubtitleContents(newEntries, System.out);
+			writeSubtitleContents(newEntries, fileManager.getSystemOutStream());
 		}
 		
 		printSummary(subtitle.getEntries(), newEntries);

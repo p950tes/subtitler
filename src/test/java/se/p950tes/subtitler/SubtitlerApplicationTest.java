@@ -2,6 +2,7 @@ package se.p950tes.subtitler;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.io.ByteArrayOutputStream;
@@ -56,9 +57,73 @@ There is no stopping in the red zone.
 		ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
 		when(fileManager.openOutputStream(file)).thenReturn(new PrintStream(outputStream));
 		
-		application.execute("/path/file.srt");
 		int status = application.execute("-i", "/path/file.srt");
 		assertEquals(0, status);
+		
+		String outputFileContents = new String(outputStream.toByteArray(), StandardCharsets.UTF_8);
+		assertEquals("""
+1
+00:01:33,385 --> 00:01:36,929
+There is no stopping in the red zone.
+
+""", outputFileContents);
+	}
+	
+	@Test
+	void scrub_file_to_sysout() throws Exception {
+		Path file = Path.of(URI.create("file:///path/file.srt"));
+		when(fileManager.isReadableFile(file)).thenReturn(true);
+		when(fileManager.readLinesFromFile(file)).thenReturn(listFrom(
+"""
+1
+00:01:33,385 --> 00:01:36,929
+There is no stopping in the red zone.
+
+2
+00:05:33,385 --> 00:05:36,929
+[SCREAMS]
+"""));
+		
+		ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+		when(fileManager.getSystemOutStream()).thenReturn(new PrintStream(outputStream));
+		
+		int status = application.execute("/path/file.srt");
+		assertEquals(0, status);
+		
+		String outputFileContents = new String(outputStream.toByteArray(), StandardCharsets.UTF_8);
+		assertEquals("""
+1
+00:01:33,385 --> 00:01:36,929
+There is no stopping in the red zone.
+
+""", outputFileContents);
+	}
+	
+	@Test
+	void scrub_file_in_place_backup_file() throws Exception {
+		Path file = Path.of(URI.create("file:///path/file.srt"));
+		Path backupFile = Path.of(URI.create("file:///path/file.srt.bak"));
+		when(fileManager.isReadableFile(file)).thenReturn(true);
+		when(fileManager.isWritableFile(file)).thenReturn(true);
+		when(fileManager.resolveBackupFile(file, ".bak")).thenReturn(backupFile);
+		when(fileManager.readLinesFromFile(file)).thenReturn(listFrom(
+"""
+1
+00:01:33,385 --> 00:01:36,929
+There is no stopping in the red zone.
+
+2
+00:05:33,385 --> 00:05:36,929
+[SCREAMS]
+"""));
+		
+		ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+		when(fileManager.openOutputStream(file)).thenReturn(new PrintStream(outputStream));
+		
+		int status = application.execute("-i.bak", "/path/file.srt");
+		assertEquals(0, status);
+		
+		verify(fileManager).copy(file, backupFile);
 		
 		String outputFileContents = new String(outputStream.toByteArray(), StandardCharsets.UTF_8);
 		assertEquals("""
