@@ -10,22 +10,18 @@ public class SubtitlerApplication {
 
 	private final CommandLine commandLine;
 	
-	public SubtitlerApplication(CommandLine commandLine) {
-		this.commandLine = commandLine;
+	public SubtitlerApplication(Logger logger, FileManager fileManager) {
+		var executor = new SubtitlerExecutor(fileManager, logger);
+		var argumentProcessor = new ArgumentProcessor(fileManager, logger, executor);
+		this.commandLine = new CommandLine(argumentProcessor);
 	}
 
-	int execute(String... args) {
+	protected int execute(String... args) {
 		return commandLine.execute(args);
 	}
 	
 	public static void main(String[] args) {
-		var fileManager = new FileManager();
-		var logger = new Logger();
-		var executor = new SubtitlerExecutor(fileManager, logger);
-		var argumentProcessor = new ArgumentProcessor(fileManager, logger, executor);
-		var commandLine = new CommandLine(argumentProcessor);
-		var application = new SubtitlerApplication(commandLine);
-		
+		var application = new SubtitlerApplication(new Logger(), new FileManager());
 		int exitCode = application.execute(args);
 		System.exit(exitCode);
 	}
