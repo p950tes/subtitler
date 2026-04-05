@@ -1,5 +1,7 @@
 package se.p950tes.subtitler.tooling.parsing;
 
+import java.io.BufferedReader;
+import java.io.IOException;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
@@ -24,6 +26,8 @@ public class SubtitleParser {
 	private final Logger logger;
 	private final Path file;
 
+	
+	private BufferedReader fileReader;
 	private String currentIndex;
 	private String currentTimestamp;
 	private List<String> currentContent = new ArrayList<>();
@@ -37,41 +41,50 @@ public class SubtitleParser {
 
 	public SubtitleFile parse() {
 		logger.verbose("Parsing: " + file);
-		List<String> lines = fileManager.readLinesFromFile(file);
-
-		for (int i = 0; i < lines.size(); i++) {
-			String line = lines.get(i).trim();
-			String nextLine = i < (lines.size() - 1) ? lines.get(i + 1).trim() : null;
-
-			if (line.isEmpty()) {
-				continue;
-			}
-			if (nextLine != null && looksLikeIndex(line) && looksLikeTimestamp(nextLine)) {
-				reset();
-				currentIndex = line;
+		this.fileReader = fileManager.getFileReader(file);
+		
+		String currentLine = readNextLine();
+		while (currentLine != null) {
+			String nextLine = readNextLine();
+			
+			if (looksLikeIndex(currentLine) && looksLikeTimestamp(nextLine)) {
+				saveCurrentAndStartNewEntry();
+				currentIndex = currentLine;
 				lastParsed = Type.INDEX;
-				continue;
-			}
-
-			if (currentIndex != null && looksLikeTimestamp(line)) {
-				currentTimestamp = line;
+			
+			} else if (currentIndex != null && looksLikeTimestamp(currentLine)) {
+				currentTimestamp = currentLine;
 				lastParsed = Type.TIMESTAMP;
-				continue;
-			}
-
-			if (lastParsed == Type.TIMESTAMP || lastParsed == Type.CONTENT) {
-				currentContent.add(line);
+				
+			} else if (lastParsed == Type.TIMESTAMP || lastParsed == Type.CONTENT) {
+				currentContent.add(currentLine);
 				lastParsed = Type.CONTENT;
-				continue;
 			}
-			reset();
+			currentLine = nextLine;
 		}
-		reset();
+		saveCurrentAndStartNewEntry();
 		logger.verbose("Entries found: " + entries.size());
 		return new SubtitleFile(file, entries);
 	}
+	
+	private String readNextLine() {
+		try {
+			String nextLine = "";
+			while (nextLine.isEmpty()) {
+				nextLine = fileReader.readLine();
+				if (nextLine == null) {
+					// End of file
+					return null;
+				}
+				nextLine = nextLine.trim();
+			}
+			return nextLine;
+		} catch (IOException e) {
+			throw new RuntimeException("Failed to read line from file", e);
+		}
+	}
 
-	private void reset() {
+	private void saveCurrentAndStartNewEntry() {
 		if (currentIndex != null && currentTimestamp != null) {
 			var entry = new SubtitleEntry(Integer.parseInt(currentIndex), currentTimestamp, currentContent);
 			entries.add(entry);
@@ -82,9 +95,15 @@ public class SubtitleParser {
 		currentContent = new ArrayList<>();
 	}
 	private static boolean looksLikeIndex(String line) {
+		if (line == null) {
+			return false;
+		}
 		return INDEX_PATTERN.matcher(line).matches();
 	}
 	private static boolean looksLikeTimestamp(String line) {
+		if (line == null) {
+			return false;
+		}
 		return TIMESTAMP_PATTERN.matcher(line).matches();
 	}
 }

@@ -3,10 +3,11 @@ package se.p950tes.subtitler.tooling.parsing;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.when;
 
+import java.io.BufferedReader;
+import java.io.StringReader;
 import java.nio.file.Path;
 import java.util.List;
 
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -32,8 +33,20 @@ class SubtitleParserTest {
 	private SubtitleParserFactory factory;
 	
 	@Test
+	void index_only() {
+		when(fileManager.getFileReader(file)).thenReturn(readerFrom(
+"""
+1
+"""));
+		
+		SubtitleFile result = factory.newParser(file).parse();
+		assertEquals(file, result.getPath());
+		assertEquals(0, result.getEntries().size());
+	}
+	
+	@Test
 	void single_entry() {
-		when(fileManager.readLinesFromFile(file)).thenReturn(listFrom(
+		when(fileManager.getFileReader(file)).thenReturn(readerFrom(
 """
 1
 00:01:33,385 --> 00:01:36,929
@@ -48,7 +61,7 @@ There is no stopping in the red zone.
 	
 	@Test
 	void two_entries() {
-		when(fileManager.readLinesFromFile(file)).thenReturn(listFrom(
+		when(fileManager.getFileReader(file)).thenReturn(readerFrom(
 """
 1
 00:01:33,385 --> 00:01:36,929
@@ -71,13 +84,13 @@ and unloading of passengers only.
 	
 	@Test
 	void junk_at_beginning() {
-		when(fileManager.readLinesFromFile(file)).thenReturn(listFrom(
+		when(fileManager.getFileReader(file)).thenReturn(new BufferedReader(new StringReader(
 """
 junk
 1
 00:01:33,385 --> 00:01:36,929
 There is no stopping in the red zone.
-"""));
+""")));
 		
 		SubtitleFile result = factory.newParser(file).parse();
 		assertEquals(file, result.getPath());
@@ -87,7 +100,7 @@ There is no stopping in the red zone.
 	
 	@Test
 	void empty_entries() {
-		when(fileManager.readLinesFromFile(file)).thenReturn(listFrom(
+		when(fileManager.getFileReader(file)).thenReturn(readerFrom(
 """
 1
 00:00:01,000 --> 00:00:02,000
@@ -118,7 +131,7 @@ and unloading of passengers only.
 	
 	@Test
 	void whitespace() {
-		when(fileManager.readLinesFromFile(file)).thenReturn(listFrom(
+		when(fileManager.getFileReader(file)).thenReturn(readerFrom(
 """
 
 1
@@ -148,9 +161,8 @@ There is no stopping in the red zone.
 	}
 	
 	@Test
-	@Disabled("Future improvement")
 	void whitespace_in_single_entry() {
-		when(fileManager.readLinesFromFile(file)).thenReturn(listFrom(
+		when(fileManager.getFileReader(file)).thenReturn(readerFrom(
 """
 
 1
@@ -174,7 +186,7 @@ and unloading of passengers only.
 		assertEquals(new SubtitleEntry(1, "00:00:01,000 --> 00:00:02,000", List.of("The white zone is for immediate loading", "and unloading of passengers only.")), entries.get(0));
 	}
 
-	private static List<String> listFrom(String content) {
-		return List.of(content.split("\n"));
+	private static BufferedReader readerFrom(String content) {
+		return new BufferedReader(new StringReader(content));
 	}
 }

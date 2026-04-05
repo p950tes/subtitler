@@ -5,12 +5,13 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
+import java.io.StringReader;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
-import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
@@ -43,7 +44,7 @@ class SubtitlerApplicationTest {
 		Path file = Path.of(URI.create("file:///path/file.srt"));
 		when(fileManager.isReadableFile(file)).thenReturn(true);
 		when(fileManager.isWritableFile(file)).thenReturn(true);
-		when(fileManager.readLinesFromFile(file)).thenReturn(listFrom(
+		when(fileManager.getFileReader(file)).thenReturn(readerFrom(
 """
 1
 00:01:33,385 --> 00:01:36,929
@@ -73,7 +74,7 @@ There is no stopping in the red zone.
 	void scrub_file_to_sysout() throws Exception {
 		Path file = Path.of(URI.create("file:///path/file.srt"));
 		when(fileManager.isReadableFile(file)).thenReturn(true);
-		when(fileManager.readLinesFromFile(file)).thenReturn(listFrom(
+		when(fileManager.getFileReader(file)).thenReturn(readerFrom(
 """
 1
 00:01:33,385 --> 00:01:36,929
@@ -106,7 +107,7 @@ There is no stopping in the red zone.
 		when(fileManager.isReadableFile(file)).thenReturn(true);
 		when(fileManager.isWritableFile(file)).thenReturn(true);
 		when(fileManager.resolveBackupFile(file, ".bak")).thenReturn(backupFile);
-		when(fileManager.readLinesFromFile(file)).thenReturn(listFrom(
+		when(fileManager.getFileReader(file)).thenReturn(readerFrom(
 """
 1
 00:01:33,385 --> 00:01:36,929
@@ -134,7 +135,7 @@ There is no stopping in the red zone.
 """, outputFileContents);
 	}
 	
-	private static List<String> listFrom(String content) {
-		return List.of(content.split("\n"));
+	private static BufferedReader readerFrom(String content) {
+		return new BufferedReader(new StringReader(content));
 	}
 }

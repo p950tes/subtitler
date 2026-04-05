@@ -1,12 +1,12 @@
 package se.p950tes.subtitler.io;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.List;
 
 public class FileManager {
 
@@ -22,11 +22,11 @@ public class FileManager {
 		return Files.exists(file) && Files.isRegularFile(file) && Files.isWritable(file);
 	}
 	
-	public List<String> readLinesFromFile(Path file) {
+	public BufferedReader getFileReader(Path file) {
 		try {
-			return Files.readAllLines(file);
+			return Files.newBufferedReader(file);
 		} catch (IOException e) {
-			throw new RuntimeException("Failed to read file: " + file, e);
+			throw new RuntimeException("Failed create file reader for file: " + file, e);
 		}
 	}
 	
