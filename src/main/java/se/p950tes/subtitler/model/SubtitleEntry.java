@@ -49,14 +49,9 @@ public class SubtitleEntry {
 
 	@Override
 	public String toString() {
-		String ret = "Index: " + index + "\n";
-		ret += "Timestamp: " + timestamp;
-		for (int i = 0; i < lines.size(); i++) {
-			String line = lines.get(i);
-			ret += "\n[" + i + "]: " + line;
-		}
-		return ret;
+		return "SubtitleEntry [index=" + index + ", timestamp=" + timestamp + ", lines=" + lines + ", modified=" + modified + "]";
 	}
+	
 
 	public String toFormattedEntry() {
 		StringBuilder builder = new StringBuilder();
